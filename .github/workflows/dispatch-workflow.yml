@@ -26,8 +26,8 @@ jobs:
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
-      - name: Check created files
-        run: ls -l "${{ github.workspace }}"
+      - name: Check created credentials file
+        run: cat firebase_credentials.json
 
       - name: Run firebase_test.py
         run: python firebase_test.py
