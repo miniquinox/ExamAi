@@ -22,7 +22,8 @@ jobs:
           pip install firebase-admin
 
       - name: Set Firebase credentials environment variable
-        run: echo "FIREBASE_CREDENTIALS_JSON=${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" >> $GITHUB_ENV
+        run: |
+          echo "FIREBASE_CREDENTIALS_JSON='${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}'" >> $GITHUB_ENV
 
       - name: Run firebase_test.py
         run: python firebase_test.py
