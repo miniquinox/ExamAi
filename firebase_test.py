@@ -25,6 +25,7 @@ import base64
 
 # db = firestore.client()
 
+print(os.getenv('FIREBASE_TYPE'))
 
 # Construct the dictionary from environment variables
 service_account_info = {
