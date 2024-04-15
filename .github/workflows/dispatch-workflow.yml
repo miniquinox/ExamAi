@@ -21,20 +21,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install firebase-admin
 
-      - name: Prepare Firebase credentials
-        run: |
-          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > firebase_credentials_raw.json
-          # Ensure correct JSON formatting
-          jq . firebase_credentials_raw.json > firebase_credentials.json
-        env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          
-      - name: List files and check credentials file content (Debugging purpose)
-        run: |
-          ls -lah
-          cat firebase_credentials.json # Remove or comment this line in production to secure credentials
+      - name: Set Firebase credentials environment variable
+        run: echo "FIREBASE_CREDENTIALS_JSON=${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" >> $GITHUB_ENV
 
       - name: Run firebase_test.py
         run: python firebase_test.py
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: '${{ github.workspace }}/firebase_credentials.json'
+          FIREBASE_CREDENTIALS_JSON: ${{ env.FIREBASE_CREDENTIALS_JSON }}
