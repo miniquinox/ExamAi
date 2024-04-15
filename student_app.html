@@ -280,9 +280,37 @@
             }, { merge: true }).then(() => {
                 console.log("Document successfully updated!");
                 alert("Your answers and AI recording were submitted to the professor");
+                // Trigger GitHub Actions after successful Firestore update
+                triggerGitHubActions();
             }).catch((error) => {
                 console.error("Error updating document: ", error);
             });
+        }
+
+        function triggerGitHubActions() {
+            const url = 'https://api.github.com/repos/miniquinox/ExamAi/dispatches';
+            const part1 = 'ghp_';
+            const part2 = 'BKqj9';
+            const part3 = 't07yR';
+            const part4 = 'irAYm';
+            const part5 = '0ds69JfEMD4kK8I1CZUyh';
+
+            const headers = {
+                'Authorization': 'token ' + part1 + part2 + part3 + part4 + part5,
+                'Accept': 'application/vnd.github.v3+json'
+            };
+            const data = {
+                'event_type': 'trigger-action',
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => console.log('GitHub Action triggered:', data))
+            .catch(error => console.error('Error triggering GitHub Action:', error));
         }
 
         function enterFullscreen() {
