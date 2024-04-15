@@ -2,9 +2,11 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 import json
+import os
 
-# Initialize Firebase Admin using the service account
-cred = credentials.Certificate('examai-0228-firebase-adminsdk-cxdcl-cb201016aa.json')  # Replace with the correct path
+# Use the environment variable set in the GitHub Actions workflow
+credential_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+cred = credentials.Certificate(credential_path)
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
