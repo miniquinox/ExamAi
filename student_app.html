@@ -50,7 +50,7 @@
         }
 
         .gradient {
-            background: linear-gradient(to right, #00fbff, hsl(77, 100%, 80%), rgb(247, 106, 247));
+            background: linear-gradient(to right, #00fbff, hsl(272, 100%, 80%), rgb(247, 106, 247));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -192,7 +192,7 @@
 
     <div class="container">
         
-        <h1><span class="light-gray">UC Davis</span> <span class="gradient">ExamAi</span> <span class="light-gray">Platform</span></h1>
+        <h1><span class="light-gray">UC Davis</span> <span class="gradient">Exam Ai</span> <span class="light-gray">Platform</span></h1>
 
         <div class="form-group">
             <label for="examIdInput">Exam ID:</label>
@@ -265,13 +265,13 @@
             const examId = document.getElementById('examIdInput').value.trim();
             const studentId = document.getElementById('studentIdInput').value.trim();
             const questionsContainer = document.getElementById('questionsContainer');
-            const inputs = questionsContainer.getElementsByTagName('input');
+            const textAreas = questionsContainer.getElementsByTagName('textarea');
             const labels = questionsContainer.getElementsByTagName('label');
 
             let answers = [];
-            for (let i = 0; i < inputs.length; i++) {
+            for (let i = 0; i < textAreas.length; i++) {
                 let answer = {};
-                answer[labels[i].textContent] = inputs[i].value;
+                answer[labels[i].textContent] = textAreas[i].value; // Use textArea value instead of input
                 answers.push(answer);
             }
 
@@ -280,37 +280,9 @@
             }, { merge: true }).then(() => {
                 console.log("Document successfully updated!");
                 alert("Your answers and AI recording were submitted to the professor");
-                // Trigger GitHub Actions after successful Firestore update
-                triggerGitHubActions();
             }).catch((error) => {
                 console.error("Error updating document: ", error);
             });
-        }
-
-        function triggerGitHubActions() {
-            const url = 'https://api.github.com/repos/miniquinox/ExamAi/dispatches';
-            const part1 = 'ghp_';
-            const part2 = 'BKqj9';
-            const part3 = 't07yR';
-            const part4 = 'irAYm';
-            const part5 = '0ds69JfEMD4kK8I1CZUyh';
-
-            const headers = {
-                'Authorization': 'token ' + part1 + part2 + part3 + part4 + part5,
-                'Accept': 'application/vnd.github.v3+json'
-            };
-            const data = {
-                'event_type': 'trigger-action',
-            };
-
-            fetch(url, {
-                method: 'POST',
-                headers: headers,
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => console.log('GitHub Action triggered:', data))
-            .catch(error => console.error('Error triggering GitHub Action:', error));
         }
 
         function enterFullscreen() {
@@ -327,7 +299,6 @@
             const buttons = document.querySelectorAll('.submit-btn');
             buttons.forEach(button => button.classList.remove('red-toned'));
         }
-
     </script>
 </body>
 </html>
