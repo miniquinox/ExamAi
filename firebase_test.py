@@ -3,11 +3,11 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 import json
 import os
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 
 # Load the environment variables from the .env file
-load_dotenv('FIREBASE_CREDENTIALS_JSON.env')
+# load_dotenv('FIREBASE_CREDENTIALS_JSON.env')
 
 # Get the JSON string from the environment variable
 my_cred = os.getenv('FIREBASE_CREDENTIALS_JSON')
