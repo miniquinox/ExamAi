@@ -26,25 +26,25 @@ import base64
 # db = firestore.client()
 
 
+# Construct the dictionary from environment variables
+service_account_info = {
+    "type": os.getenv('FIREBASE_TYPE'),
+    "project_id": os.getenv('FIREBASE_PROJECT_ID'),
+    "private_key_id": os.getenv('FIREBASE_PRIVATE_KEY_ID'),
+    "private_key": os.getenv('FIREBASE_PRIVATE_KEY').replace('\\n', '\n'),  # Adjust newlines if needed
+    "client_email": os.getenv('FIREBASE_CLIENT_EMAIL'),
+    "client_id": os.getenv('FIREBASE_CLIENT_ID'),
+    "auth_uri": os.getenv('FIREBASE_AUTH_URI'),
+    "token_uri": os.getenv('FIREBASE_TOKEN_URI'),
+    "auth_provider_x509_cert_url": os.getenv('FIREBASE_AUTH_PROVIDER_X509_CERT_URL'),
+    "client_x509_cert_url": os.getenv('FIREBASE_CLIENT_X509_CERT_URL'),
+    "universe_domain": os.getenv('FIREBASE_UNIVERSE_DOMAIN')
+}
 
-
-
-
-# Fetch the base64 encoded JSON string from the environment variable
-encoded_json = os.getenv('FIREBASE_CREDENTIALS_JSON_BASE64')
-if not encoded_json:
-    raise ValueError("Firebase credentials environment variable is not set.")
-
-# Decode the base64 string
-decoded_json = base64.b64decode(encoded_json).decode('utf-8')
-
-# Convert the JSON string to a dictionary
-firebase_credentials_dict = json.loads(decoded_json)
-
-# Use the dictionary to initialize Firebase
-cred = credentials.Certificate(firebase_credentials_dict)
+# Initialize Firebase with the reconstructed credentials
+cred = credentials.Certificate(service_account_info)
 firebase_admin.initialize_app(cred)
-
+db = firestore.client()
 
 # Function to add or update student data in the exam
 def add_student_to_exam(exam_id, student_data):
