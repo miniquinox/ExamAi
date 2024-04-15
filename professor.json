@@ -1,0 +1,94 @@
+[
+    {
+        "BAX 423 - Big Data Analytics": {
+            "exams": {
+                "MidTermExam": {
+                    "questions": [
+                        {
+                            "text": "What are P-values?",
+                            "question_id": "Q1",
+                            "rubrics": [
+                                {
+                                    "partial_weight": 15,
+                                    "description": "Did the student explain what a P-value is?",
+                                    "rubric_id": "R1"
+                                },
+                                {
+                                    "partial_weight": 5,
+                                    "description": "Did the student give an example of a P-value in use?",
+                                    "rubric_id": "R2"
+                                },
+                                {
+                                    "partial_weight": 5,
+                                    "description": "Did the student discuss why P-values are useful?",
+                                    "rubric_id": "R3"
+                                },
+                                {
+                                    "partial_weight": 5,
+                                    "description": "Did the student explain the boundaries of P-values?",
+                                    "rubric_id": "R4"
+                                }
+                            ],
+                            "weight": 30
+                        },
+                        {
+                            "text": "Explain the Central Limit Theorem.",
+                            "question_id": "Q2",
+                            "rubrics": [
+                                {
+                                    "partial_weight": 10,
+                                    "description": "Did the student define the Central Limit Theorem?",
+                                    "rubric_id": "R1"
+                                },
+                                {
+                                    "partial_weight": 10,
+                                    "description": "Did the student describe the conditions under which the theorem applies?",
+                                    "rubric_id": "R2"
+                                },
+                                {
+                                    "partial_weight": 15,
+                                    "description": "Did the student provide an example application?",
+                                    "rubric_id": "R3"
+                                },
+                                {
+                                    "partial_weight": 5,
+                                    "description": "Did the student discuss the implications of the theorem in statistical analysis?",
+                                    "rubric_id": "R4"
+                                }
+                            ],
+                            "weight": 40
+                        },
+                        {
+                            "text": "What is regression analysis?",
+                            "question_id": "Q3",
+                            "rubrics": [
+                                {
+                                    "partial_weight": 10,
+                                    "description": "Did the student explain what regression analysis is?",
+                                    "rubric_id": "R1"
+                                },
+                                {
+                                    "partial_weight": 10,
+                                    "description": "Did the student discuss different types of regression analyses?",
+                                    "rubric_id": "R2"
+                                },
+                                {
+                                    "partial_weight": 5,
+                                    "description": "Did the student give an example of how regression is used?",
+                                    "rubric_id": "R3"
+                                },
+                                {
+                                    "partial_weight": 5,
+                                    "description": "Did the student explain how regression outcomes are interpreted?",
+                                    "rubric_id": "R4"
+                                }
+                            ],
+                            "weight": 30
+                        }
+                    ]
+                }
+            },
+            "professor_id": "Pantelis Loupos"
+        }
+    }
+]

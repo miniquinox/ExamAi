@@ -1,0 +1,19 @@
+[
+    {
+        "students": [
+            {
+                "stu001": [
+                    {
+                        "What are P-values?": "P-values are a statistical measure used to determine whether the observed results of a study are statistically significant. It quantifies the probability of observing results at least as extreme as those in the data, assuming that the null hypothesis is true. A smaller p-value indicates stronger evidence against the null hypothesis."
+                    },
+                    {
+                        "Explain the Central Limit Theorem.": "The Central Limit Theorem states that the distribution of sample means is normal."
+                    },
+                    {
+                        "What is regression analysis?": "Regression analysis is a technique for classifying data into different categories based on statistical models."
+                    }
+                ]
+            }
+        ]
+    }
+]
