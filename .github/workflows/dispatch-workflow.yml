@@ -14,22 +14,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.11.7'  # Ensure this matches the Python version you need
+          python-version: '3.11.7'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install firebase-admin
 
-      - name: Prepare Firebase credentials
-        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > firebase_credentials.json
-        env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-
-      - name: Check created files
-        run: ls -l "${{ github.workspace }}"
+      - name: Set Firebase credentials environment variable
+        run: echo "FIREBASE_CREDENTIALS_JSON=${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" >> $GITHUB_ENV
 
       - name: Run firebase_test.py
         run: python firebase_test.py
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: '${{ github.workspace }}/firebase_credentials.json'
+          FIREBASE_CREDENTIALS_JSON: ${{ env.FIREBASE_CREDENTIALS_JSON }}
