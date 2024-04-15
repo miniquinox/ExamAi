@@ -5,11 +5,12 @@ import json
 import os
 
 # Use the environment variable set in the GitHub Actions workflow
-credential_path = os.getenv('FIREBASE_SERVICE_ACCOUNT')
+credential_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+if credential_path is None:
+    raise ValueError("The GOOGLE_APPLICATION_CREDENTIALS environment variable was not set.")
+
 cred = credentials.Certificate(credential_path)
 firebase_admin.initialize_app(cred)
-
-db = firestore.client()
 
 # Function to add or update student data in the exam
 def add_student_to_exam(exam_id, student_data):
