@@ -6,13 +6,13 @@ import os
 
 # Fetch the JSON string from the environment variable
 firebase_credentials_json = os.getenv('FIREBASE_CREDENTIALS_JSON')
-if firebase_credentials_json is None:
+if not firebase_credentials_json:
     raise ValueError("Firebase credentials environment variable is not set.")
 
-# Parse the JSON string into a dictionary
+# Convert the JSON string to a dictionary
 firebase_credentials_dict = json.loads(firebase_credentials_json)
 
-# Use the parsed dictionary to initialize Firebase
+# Use the dictionary to initialize Firebase
 cred = credentials.Certificate(firebase_credentials_dict)
 firebase_admin.initialize_app(cred)
 
