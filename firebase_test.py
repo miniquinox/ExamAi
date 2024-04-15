@@ -3,18 +3,25 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 import json
 import os
+from dotenv import load_dotenv
 
-# Fetch the JSON string from the environment variable
-firebase_credentials_json = os.getenv('FIREBASE_CREDENTIALS_JSON')
-if not firebase_credentials_json:
-    raise ValueError("Firebase credentials environment variable is not set.")
 
-# Convert the JSON string to a dictionary
-firebase_credentials_dict = json.loads(firebase_credentials_json)
+# Load the environment variables from the .env file
+load_dotenv('FIREBASE_CREDENTIALS_JSON.env')
 
-# Use the dictionary to initialize Firebase
-cred = credentials.Certificate(firebase_credentials_dict)
+# Get the JSON string from the environment variable
+my_cred = os.getenv('FIREBASE_CREDENTIALS_JSON')
+
+# Parse the JSON string into a Python dictionary
+my_cred_dict = json.loads(my_cred)
+
+# Use the dictionary to create the credentials
+cred = credentials.Certificate(my_cred_dict)
+
+# Initialize Firebase Admin with the credentials
 firebase_admin.initialize_app(cred)
+
+db = firestore.client()
 
 # Function to add or update student data in the exam
 def add_student_to_exam(exam_id, student_data):
