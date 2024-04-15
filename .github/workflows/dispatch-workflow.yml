@@ -14,7 +14,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.11.7'  # Ensure this matches the Python version you need
+          python-version: '3.11.7'
 
       - name: Install dependencies
         run: |
@@ -22,12 +22,17 @@ jobs:
           pip install firebase-admin
 
       - name: Prepare Firebase credentials
-        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > firebase_credentials.json
+        run: |
+          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > firebase_credentials_raw.json
+          # Ensure correct JSON formatting
+          jq . firebase_credentials_raw.json > firebase_credentials.json
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-
-      - name: Check created credentials file
-        run: cat firebase_credentials.json
+          
+      - name: List files and check credentials file content (Debugging purpose)
+        run: |
+          ls -lah
+          cat firebase_credentials.json # Remove or comment this line in production to secure credentials
 
       - name: Run firebase_test.py
         run: python firebase_test.py
