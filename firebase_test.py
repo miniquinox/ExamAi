@@ -4,12 +4,16 @@ from firebase_admin import firestore
 import json
 import os
 
-# Use the environment variable set in the GitHub Actions workflow
-credential_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
-if credential_path is None:
-    raise ValueError("The GOOGLE_APPLICATION_CREDENTIALS environment variable was not set.")
+# Fetch the JSON string from the environment variable
+firebase_credentials_json = os.getenv('FIREBASE_CREDENTIALS_JSON')
+if firebase_credentials_json is None:
+    raise ValueError("Firebase credentials environment variable is not set.")
 
-cred = credentials.Certificate(credential_path)
+# Parse the JSON string into a dictionary
+firebase_credentials_dict = json.loads(firebase_credentials_json)
+
+# Use the parsed dictionary to initialize Firebase
+cred = credentials.Certificate(firebase_credentials_dict)
 firebase_admin.initialize_app(cred)
 
 # Function to add or update student data in the exam
