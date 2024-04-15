@@ -45,6 +45,16 @@
             color: #fff !important; /* White text for contrast */
         }
 
+        .light-gray {
+            color: lightgray;
+        }
+
+        .gradient {
+            background: linear-gradient(to right, #00fbff, hsl(77, 100%, 80%), rgb(247, 106, 247));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
         .camera-container {
             position: fixed;
             top: 10px;
@@ -181,7 +191,9 @@
     <div id="recording-indicator"></div>
 
     <div class="container">
-        <h1>UC Davis Exam Ai Platform</h1>
+        
+        <h1><span class="light-gray">UC Davis</span> <span class="gradient">ExamAi</span> <span class="light-gray">Platform</span></h1>
+
         <div class="form-group">
             <label for="examIdInput">Exam ID:</label>
             <input type="text" id="examIdInput" placeholder="Enter Exam ID" required>
