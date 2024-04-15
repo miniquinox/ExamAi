@@ -2,49 +2,29 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 import json
-import os
-import base64
 
-# from dotenv import load_dotenv
+# Initialize Firebase Admin using the service account
+part1 = "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDTJyq9aT0aR24T\n6V/tk+7QC1nvxmLOKWDmJ8RDKTFYz86jnhMEoiXQXH0ubWLU6wabaeTibqGOACz0\nfjK3Na7m3d1UCrqt/IXzhZ+TkJirSVzfEys6bxk0Y8cDcyLJrrj2PqesXSlzEx/y\nMvNoiCBph9wwDFEZQ4zI/1DcU996zhk1Te0XlCuUfXIrm2a/kLraVS9cI2TWmPqH\nuJH7N7/ZnHzdc/XOL6tlWBHr11qZK3laMyHXExG2GvmBnJDXCr+UCbLnq5xDjEZ+\n3fKtbelmufdZQDqAuyqM6"
+part2 = "33jAoZijS6o+TsDvFMJkyghKlTNDT/GnHgkWRlchrPP\n1VfcQprTAgMBAAECggEAVxw4cK3i7F19ly9XSO8XvbKBJv9EMeM2O506Ra7P0eDh\nUfTbybSPPxd4+VddR5OyRRl5uMSFV8zQvwj1KUo3Xr03Gv3WKAMey+lbfQhRQ5Df\nhJQm6FN/JXLoXo74UhYH7mbIy74fZH8GVegZLQ3DuWW4PAZIytBoW1+hX1QmxUVT\naSvD6H3j9db6auHZihaDGBYPDwxNH0lMy0eoFFOpiH9KY4Lc4XYEIfQqk/peiUEE\n84P7f4QTfZkUWXguonVDwQQKzRPMyWLwFHCjqZec2VtPDH7yGDSTWKzQbYv+XmLy\ndoHpcbT+hD2Bn1XLgOA/abmhnjDvtGk71T57hq4UsQKBgQDz4kKrex56Sl0VE1HJ\n3rXfSTgL/MueJh3yIMCzG2LsB+767UR7pRYsAJ7p0x8zH9pTRBgwd/ITogLFwthC\nrvBMhOCuL5UP92xX3seyhiObhqZ88YSRRi14u8RCFhsRU7owmmn0BGlsCYvlFL6g\nkkWlZKOhBcHIz+TZIgytX7L62QKBgQDdpKHmRBxrT3UwhybZlN6iRtdmuI0+QIo4\nNAX+hKvIY5k8kHm04ZNSwlrAJmIGF20iv5UphktuJpwKx3t"
+part3 = "2jX43k038Nxo2sNpy\npCHz5FX5hUph1haqr3lGeF2U89M+J+mpVBB+ly9f2Czaad70yfvWi7y4tVV7Ke7g\n0cLdK4E/iwKBgALGro+ZJS2rLwgQYjv0Bwn1oWexhvfT4z9gVBE13JhnNrcwgDkQ\nFgKGN0jeGFrSn/+WpNfYZa8HhxSNNTz9FMsqMAyLihzWaitN4+QKVtlsXPTLIwEs\nVVQsfv1plwFJfLMU7uPSMQkDys3ewJS/VX+ed6ZblGsewrIeCxrmHflxAoGBAMMT\n7fNPq3u/ubN2oPkMkE9f7qJYeOh7wavqDgSQHOoIz4yA1L4hdJt4uIs6vTgDUmkt\nGkosCyPuE5VhMgeMTbT4j8EXdpkAW6RfVgrlw84URP2LgvPD8gfWVPePCzQ/yObi\nOIpS4r2G9SNf336wcFnLL9WatJvssnVp6grkCaQ1AoGBAKbD8qiMG+x+Nd4/GWxW\n7Ahl1N+wgdsrn6VbTVNP7oA0ju7blRPZlLw7AuETULKl/LYT93aebdTax20Wo7/Q\nb9jn5Pfghiu/Z1De1ZdqZNxQSkKVTR2WHr1rgBtMg02yfaiSavibOIUVT1HEDyli\nKxpaNP3T4/7IZbjGiZ9hJOAb\n-----END PRIVATE KEY-----\n"
 
-
-# Load the environment variables from the .env file
-# load_dotenv('FIREBASE_CREDENTIALS_JSON.env')
-
-# # Get the JSON string from the environment variable
-# my_cred = os.getenv('FIREBASE_CREDENTIALS_JSON')
-
-# # Parse the JSON string into a Python dictionary
-# my_cred_dict = json.loads(my_cred)
-
-# # Use the dictionary to create the credentials
-# cred = credentials.Certificate(my_cred_dict)
-
-# # Initialize Firebase Admin with the credentials
-# firebase_admin.initialize_app(cred)
-
-# db = firestore.client()
-
-print(os.getenv('FIREBASE_TYPE'))
-
-# Construct the dictionary from environment variables
-service_account_info = {
-    "type": os.getenv('FIREBASE_TYPE'),
-    "project_id": os.getenv('FIREBASE_PROJECT_ID'),
-    "private_key_id": os.getenv('FIREBASE_PRIVATE_KEY_ID'),
-    "private_key": os.getenv('FIREBASE_PRIVATE_KEY').replace('\\n', '\n'),  # Adjust newlines if needed
-    "client_email": os.getenv('FIREBASE_CLIENT_EMAIL'),
-    "client_id": os.getenv('FIREBASE_CLIENT_ID'),
-    "auth_uri": os.getenv('FIREBASE_AUTH_URI'),
-    "token_uri": os.getenv('FIREBASE_TOKEN_URI'),
-    "auth_provider_x509_cert_url": os.getenv('FIREBASE_AUTH_PROVIDER_X509_CERT_URL'),
-    "client_x509_cert_url": os.getenv('FIREBASE_CLIENT_X509_CERT_URL'),
-    "universe_domain": os.getenv('FIREBASE_UNIVERSE_DOMAIN')
+my_cred = {
+  "type": "service_account",
+  "project_id": "examai-0228",
+  "private_key_id": "cb201016aa944bde90a2ab94f094a259cb63c2bd",
+  "private_key": part1 + part2 + part3,
+  "client_email": "firebase-adminsdk-cxdcl@examai-0228.iam.gserviceaccount.com",
+  "client_id": "105408726183895905662",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-cxdcl%40examai-0228.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
 }
 
-# Initialize Firebase with the reconstructed credentials
-cred = credentials.Certificate(service_account_info)
+cred = credentials.Certificate(my_cred)
 firebase_admin.initialize_app(cred)
+
 db = firestore.client()
 
 # Function to add or update student data in the exam
