@@ -5,7 +5,7 @@ import json
 import os
 
 # Use the environment variable set in the GitHub Actions workflow
-credential_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+credential_path = os.getenv('FIREBASE_SERVICE_ACCOUNT')
 cred = credentials.Certificate(credential_path)
 firebase_admin.initialize_app(cred)
 
