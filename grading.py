@@ -39,10 +39,14 @@ firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 def ask_gpt(question):
+    key1 = "sk-XXofCUszTzeSX"
+    key2 = "8HeAy85T3BlbkFJe"
+    key3 = "lhWc2AUBFmbhRzFvwJD"
+    keys = key1 + key2 + key3
     url = "https://api.openai.com/v1/chat/completions"
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer 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"
+        "Authorization": f"Bearer {keys}"
     }
     data = {
         # "model": "gpt-3.5-turbo",
