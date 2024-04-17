@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professor's Exam Visualization Portal</title>
+    <!-- Firebase Libraries -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+        const firebaseConfig = {
+            authDomain: "examai-0228.firebaseapp.com",
+            projectId: "examai-0228",
+            storageBucket: "examai-0228.appspot.com",
+            messagingSenderId: "105408726183895905662"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('searchInput').addEventListener('input', function (event) {
+                const searchTerm = event.target.value.trim();
+                const searchResults = document.getElementById('searchResults');
+
+                if (searchTerm.length > 0) {
+                    db.collection("Graded").where("exam_id", ">=", searchTerm)
+                        .where("exam_id", "<=", searchTerm + '\uf8ff')
+                        .get()
+                        .then(function (querySnapshot) {
+                            searchResults.innerHTML = '';
+                            querySnapshot.forEach(function (doc) {
+                                var anchor = document.createElement('a');
+                                anchor.textContent = doc.id;
+                                anchor.href = '#';
+                                anchor.className = 'search-result';
+                                searchResults.appendChild(anchor);
+
+                                anchor.addEventListener('click', function (event) {
+                                    event.preventDefault();
+                                    searchResults.innerHTML = '';
+
+                                    var examContainer = document.createElement('div');
+                                    examContainer.className = 'exam-container';
+
+                                    var columns = [2, 3, 2]; // Number of boxes per column
+                                    var boxes = []; // Store student boxes
+
+                                    var examData = doc.data();
+                                    examData.students.forEach(function (student, index) {
+                                        var studentBox = document.createElement('div');
+                                        studentBox.className = 'student-box';
+                                        studentBox.innerHTML = `<div>Student ID: ${student.student_id}</div><div>Final Grade: ${student.final_grade}</div>`;
+                                        boxes.push(studentBox);
+                                    });
+
+                                    columns.forEach(function (numBoxes, columnIndex) {
+                                        var columnDiv = document.createElement('div');
+                                        columnDiv.className = 'column';
+
+                                        for (let i = 0; i < numBoxes; i++) {
+                                            var box;
+                                            if (boxes.length > 0) {
+                                                box = boxes.shift();
+                                            } else {
+                                                box = document.createElement('div');
+                                                box.className = 'student-box empty-box';
+                                            }
+                                            box.classList.add(`height-${numBoxes}-${i + 1}`);
+                                            columnDiv.appendChild(box);
+                                        }
+                                        examContainer.appendChild(columnDiv);
+                                    });
+
+                                    searchResults.appendChild(examContainer);
+                                });
+                            });
+                        })
+                        .catch(function (error) {
+                            console.log("Error getting documents: ", error);
+                        });
+                } else {
+                    searchResults.innerHTML = '';
+                }
+            });
+        });
+
+    </script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" integrity="sha384-vp86vTRFVJgpjF9jiT9ODllV9BG2sIb6bTy0FgRDpNI6Vib8xDUI8ble25BLpp2j" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('https://images6.alphacoders.com/125/1257448.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+        }
+        .frosted-card {
+            backdrop-filter: blur(10px);
+            background: rgba(76, 76, 76, 0.5); /* Make the background darker */
+            border-radius: 20px;
+            padding: 40px 20px; /* Increase vertical padding */
+            min-height: 750px; /* Add a minimum height */
+            min-width: auto; /* Ensure no minimum width is set */
+            margin: 40px auto 0 auto; /* Remove bottom margin */
+            max-width: 1300px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: #484848;
+            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0 20px; /* Add horizontal padding */
+            }
+            .frosted-card {
+                margin: 20px 0 0 0; /* Add 20px margin to the top, no margin to the bottom */
+            }
+        }
+        .title-bar {
+            text-align: center;
+            padding: 20px;
+            background-color: #100e174f;
+            border-radius: 20px;
+        }
+
+        .exam-container {
+            display: flex;
+            justify-content: space-between; /* Adjust space between columns */
+            align-items: stretch; /* Stretch columns vertically */
+            height: 100%; /* Full height */
+            padding: 0 10px; /* Padding inside the container to the sides */
+            margin: 20px 0; /* Margin on top and bottom */
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Space between boxes */
+            flex: 1; /* Equal width */
+            padding: 0 10px; /* Padding inside each column */
+            margin: 0; /* No additional margin for columns */
+        }
+
+        .column > :last-child {
+            margin-bottom: 0;
+        }
+
+        /* Boxes within the columns */
+        .student-box, .empty-box {
+            margin-bottom: 10px; /* Space between boxes */
+            margin-right: 0; /* Remove margin-right if any */
+            margin-left: 0; /* Remove margin-left if any */
+            flex-grow: 1; /* Grow to fill column */
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: white;
+            text-align: left;
+            margin-bottom: 20px; /* Space between boxes */
+            padding: 10px;
+            flex-grow: 1; /* Boxes will grow equally to fill the column */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Center the content vertically */
+        }
+
+        .student-box:hover {
+            backdrop-filter: blur(5px);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+
+        .title-bar h1 {
+            color: white;
+            margin: 0;
+        }
+
+        .title-bar h2 {
+            color: purple;
+            margin: 0;
+        }
+
+        .title-bar h2 span {
+            color: #800080;
+        }
+
+        .title-bar p {
+            color: lightgray;
+            margin: 0;
+        }
+
+        .topbar {
+            padding: 10px 20px;
+            /* background-color: #100e174f; */
+            display: flex;
+            justify-content: center;
+        }
+        .glow {
+            outline: none;
+            border: none;
+            animation: glow 1s linear infinite;
+        }
+
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 5px #ffffff, 0 0 10px #ffa200, 0 0 15px #5b5b5b;
+            }
+            33% {
+                box-shadow: 0 0 5px #5b5b5b, 0 0 10px #ffffff, 0 0 15px #ffa200;
+            }
+            66% {
+                box-shadow: 0 0 5px #ffa200, 0 0 10px #5b5b5b, 0 0 15px #ffffff;
+            }
+            100% {
+                box-shadow: 0 0 5px #ffffff, 0 0 10px #ffa200, 0 0 15px #5b5b5b;
+            }
+        }
+
+        .height-2-1 {
+            height: 200px; /* Adjust this value to your preference */
+        }
+
+        .height-2-2 {
+            height: 200px; /* Adjust this value to your preference */
+        }
+
+        .height-3-1 {
+            height: 120px; /* Adjust this value to your preference */
+        }
+
+        .height-3-2 {
+            height: 120px; /* Adjust this value to your preference */
+        }
+
+        .height-3-3 {
+            height: 120px; /* Adjust this value to your preference */
+        }
+
+        input[type="search"] {
+            width: 300px;
+            padding: 10px;
+            border-radius: 15px;
+            border: 2px solid #dcc464;
+            background: transparent;
+            color: #fff;
+            outline: none;
+            margin-top: 20px; /* Add space between the search bar and the top element */
+        }
+
+        input[type="search"]::placeholder {
+            color: rgb(255, 255, 255);
+        }
+
+        select {
+            width: 100%;
+            padding: 5px 10px;
+            border-radius: 5px;
+            background-color: #1b1b2f;
+            color: #21e6c1;
+            border: 1px solid #21e6c1;
+        }
+
+        .search-result {
+            /* Updated styles for search results */
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1); /* Fallback for browsers that do not support backdrop-filter */
+            color: #fff;
+            text-align: center;
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+        }
+
+        .search-result:hover {
+            backdrop-filter: blur(5px);
+            background-color: rgba(255, 255, 255, 0.2); /* Slightly darker on hover */
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="frosted-card">
+        <div class="title-bar">
+            <h1 style="color: white; font-size: 4em; font-weight: bold;">Grade college exams in seconds</h1>
+            <h2 style="background: linear-gradient(to right, #f0b80f, #d1d1d1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 3em;">powered by <span>ExamAi</span></h2>
+            <p style="color: lightgray; font-size: 1.5em;">Search your exam ID right below, without having to sign up!</p>
+        </div>
+        <div class="topbar">
+            <input type="search" id="searchInput" placeholder="Search Exam IDs" class="glow">
+        </div>
+        <div class="content">
+            <div id="searchResults">
+                <!-- Options will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>
