@@ -120,4 +120,9 @@ for student_dict in students_json[0]["students"]:
         exam_results["students"].append(student_result)
 
 # Output the final JSON
-print(json.dumps(exam_results, indent=4))
+exam_results_json = json.dumps(exam_results, indent=4)
+print(exam_results_json)
+
+# Update the document in Firestore
+doc_ref = db.collection('Graded').document(exam_results['exam_id'])
+doc_ref.set(exam_results, merge=True)
