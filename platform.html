@@ -19,72 +19,186 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        document.addEventListener('DOMContentLoaded', function () {
-            document.getElementById('searchInput').addEventListener('input', function (event) {
-                const searchTerm = event.target.value.trim();
-                const searchResults = document.getElementById('searchResults');
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
 
+            function createAnchor(doc) {
+                let anchor = document.createElement('a');
+                anchor.textContent = doc.id;
+                anchor.href = '#';
+                anchor.className = 'search-result';
+                anchor.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    displayResults(doc);
+                });
+                return anchor;
+            }
+
+            function displayResults(doc) {
+                searchResults.innerHTML = '';
+                const examContainer = createExamContainer();
+                const examData = doc.data();
+                const boxes = createStudentBoxes(examData);
+                populateColumns(examContainer, boxes);
+                searchResults.appendChild(examContainer);
+            }
+
+            function createExamContainer() {
+                let container = document.createElement('div');
+                container.className = 'exam-container';
+                return container;
+            }
+
+            function createStudentBoxes(examData) {
+                return examData.students.map((student, index) => createStudentBox(student, index));
+            }
+
+            function createStudentBox(student, index) {
+                let box = document.createElement('div');
+                box.className = 'student-box';
+                box.innerHTML = `<div>Student ID: ${student.student_id}</div><div>Final Grade: ${student.final_grade}</div>`;
+                if (index === 1) {
+                    box.appendChild(createChartContainer());
+                }
+                return box;
+            }
+
+            function createChartContainer() {
+                let chartContainer = document.createElement('div');
+                chartContainer.className = 'chart-container';
+                chartContainer.innerHTML = `
+                    <div class="chart" data-percent="0" data-bar-color="#23afe3">
+                        <span class="percent" data-after="%">0</span>
+                    </div>
+                    <p>Average Score</p>
+                `;
+                return chartContainer;
+            }
+
+            function createBox1_1(callback) {
+                let box = document.createElement('div');
+                box.className = 'student-box';
+                box.innerHTML = '<h2 style="text-align: center;">Top 5 Students</h2>'; // Title for the box
+                // Fetch all documents from the "Graded" collection in Firebase
+                db.collection("Graded").get().then((querySnapshot) => {
+                    let students = [];
+                    querySnapshot.forEach((doc) => {
+                        // doc.data() is never undefined for query doc snapshots
+                        let examData = doc.data();
+                        examData.students.forEach(function (student, index) {
+                            students.push(student);
+                        });
+                    });
+
+                    // Sort students by final_grade in descending order and take top 5
+                    students.sort((a, b) => b.final_grade - a.final_grade);
+                    students.slice(0, 5).forEach((student) => {
+                        box.innerHTML += `<div>Student ID: ${student.student_id}, Final Grade: ${student.final_grade}</div>`;
+                    });
+
+                    callback(box); // Call the callback with the box as argument
+                }).catch((error) => {
+                    console.log("Error getting documents: ", error);
+                });
+            }
+
+            function createBox1_2() {
+                let box = document.createElement('div');
+                box.className = 'student-box';
+                box.innerHTML = '<div>Dummy data for box 1_2</div>';
+                return box;
+            }
+
+            function createBox2_1() {
+                let box = document.createElement('div');
+                box.className = 'student-box';
+                box.innerHTML = '<div>Dummy data for box 2_1</div>';
+                return box;
+            }
+
+            function createBox2_2() {
+                let box = document.createElement('div');
+                box.className = 'student-box';
+                box.innerHTML = '<div>Dummy data for box 2_2</div>';
+                return box;
+            }
+
+            function createBox2_3() {
+                let box = document.createElement('div');
+                box.className = 'student-box';
+                box.innerHTML = '<div>Dummy data for box 2_3</div>';
+                return box;
+            }
+
+            function createBox3_1() {
+                let box = document.createElement('div');
+                box.className = 'student-box';
+                box.innerHTML = '<div>Dummy data for box 3_1</div>';
+                return box;
+            }
+
+            function createBox3_2() {
+                let box = document.createElement('div');
+                box.className = 'student-box';
+                box.innerHTML = '<div>Dummy data for box 3_2</div>';
+                return box;
+            }
+
+            async function populateColumns(examContainer) {
+                const columnsConfig = [2, 3, 2]; // Number of boxes per column
+                for (let columnIndex = 0; columnIndex < columnsConfig.length; columnIndex++) {
+                    let numBoxes = columnsConfig[columnIndex];
+                    let columnDiv = document.createElement('div');
+                    columnDiv.className = 'column';
+                    for (let i = 0; i < numBoxes; i++) {
+                        let box;
+                        if (columnIndex === 0 && i === 0) { // If it's the first box of the first column
+                            box = await new Promise(resolve => createBox1_1(resolve));
+                        } else if (columnIndex === 0 && i === 1) { // If it's the second box of the first column
+                            box = createBox1_2();
+                        } else if (columnIndex === 1 && i === 0) { // If it's the first box of the second column
+                            box = createBox2_1();
+                        } else if (columnIndex === 1 && i === 1) { // If it's the second box of the second column
+                            box = createBox2_2();
+                        } else if (columnIndex === 1 && i === 2) { // If it's the third box of the second column
+                            box = createBox2_3();
+                        } else if (columnIndex === 2 && i === 0) { // If it's the first box of the third column
+                            box = createBox3_1();
+                        } else if (columnIndex === 2 && i === 1) { // If it's the second box of the third column
+                            box = createBox3_2();
+                        }
+                        box.classList.add(`height-${numBoxes}-${i + 1}`);
+                        columnDiv.appendChild(box);
+                    }
+                    examContainer.appendChild(columnDiv);
+                }
+            }
+
+            function createEmptyBox() {
+                let emptyBox = document.createElement('div');
+                emptyBox.className = 'student-box empty-box';
+                return emptyBox;
+            }
+
+            searchInput.addEventListener('input', function(event) {
+                const searchTerm = event.target.value.trim();
                 if (searchTerm.length > 0) {
                     db.collection("Graded").where("exam_id", ">=", searchTerm)
                         .where("exam_id", "<=", searchTerm + '\uf8ff')
                         .get()
-                        .then(function (querySnapshot) {
+                        .then(querySnapshot => {
                             searchResults.innerHTML = '';
-                            querySnapshot.forEach(function (doc) {
-                                var anchor = document.createElement('a');
-                                anchor.textContent = doc.id;
-                                anchor.href = '#';
-                                anchor.className = 'search-result';
-                                searchResults.appendChild(anchor);
-
-                                anchor.addEventListener('click', function (event) {
-                                    event.preventDefault();
-                                    searchResults.innerHTML = '';
-
-                                    var examContainer = document.createElement('div');
-                                    examContainer.className = 'exam-container';
-
-                                    var columns = [2, 3, 2]; // Number of boxes per column
-                                    var boxes = []; // Store student boxes
-
-                                    var examData = doc.data();
-                                    examData.students.forEach(function (student, index) {
-                                        var studentBox = document.createElement('div');
-                                        studentBox.className = 'student-box';
-                                        studentBox.innerHTML = `<div>Student ID: ${student.student_id}</div><div>Final Grade: ${student.final_grade}</div>`;
-                                        boxes.push(studentBox);
-                                    });
-
-                                    columns.forEach(function (numBoxes, columnIndex) {
-                                        var columnDiv = document.createElement('div');
-                                        columnDiv.className = 'column';
-
-                                        for (let i = 0; i < numBoxes; i++) {
-                                            var box;
-                                            if (boxes.length > 0) {
-                                                box = boxes.shift();
-                                            } else {
-                                                box = document.createElement('div');
-                                                box.className = 'student-box empty-box';
-                                            }
-                                            box.classList.add(`height-${numBoxes}-${i + 1}`);
-                                            columnDiv.appendChild(box);
-                                        }
-                                        examContainer.appendChild(columnDiv);
-                                    });
-
-                                    searchResults.appendChild(examContainer);
-                                });
+                            querySnapshot.forEach(doc => {
+                                searchResults.appendChild(createAnchor(doc));
                             });
-                        })
-                        .catch(function (error) {
-                            console.log("Error getting documents: ", error);
-                        });
+                        }).catch(error => console.log("Error getting documents: ", error));
                 } else {
                     searchResults.innerHTML = '';
                 }
             });
         });
+
 
     </script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" integrity="sha384-vp86vTRFVJgpjF9jiT9ODllV9BG2sIb6bTy0FgRDpNI6Vib8xDUI8ble25BLpp2j" crossorigin="anonymous">
@@ -159,11 +273,11 @@
             color: white;
             text-align: left;
             margin-bottom: 20px; /* Space between boxes */
-            padding: 10px;
+            padding: 0 20px;
             flex-grow: 1; /* Boxes will grow equally to fill the column */
             display: flex;
             flex-direction: column;
-            justify-content: center; /* Center the content vertically */
+            justify-content: flex-start; /* Align the content to the top */
         }
 
         .student-box:hover {
