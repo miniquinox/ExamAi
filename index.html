@@ -22,6 +22,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');
             const searchResults = document.getElementById('searchResults');
+            let selectedExamId = null; // Variable to store the selected exam_id
 
             function createAnchor(doc) {
                 let anchor = document.createElement('a');
@@ -30,7 +31,9 @@
                 anchor.className = 'search-result';
                 anchor.addEventListener('click', function(event) {
                     event.preventDefault();
-                    displayResults(doc);
+                    selectedExamId = doc.id; // Save the selected exam_id
+                    console.log("Selected Exam ID:", selectedExamId); // Debug log
+                    displayResults(doc); // Ensure this is called after setting the ID
                 });
                 return anchor;
             }
@@ -80,28 +83,32 @@
                 let box = document.createElement('div');
                 box.className = 'student-box';
                 box.innerHTML = '<h2 style="text-align: center;">Top 5 Students</h2>'; // Title for the box
-                // Fetch all documents from the "Graded" collection in Firebase
-                db.collection("Graded").get().then((querySnapshot) => {
-                    let students = [];
-                    querySnapshot.forEach((doc) => {
-                        // doc.data() is never undefined for query doc snapshots
-                        let examData = doc.data();
-                        examData.students.forEach(function (student, index) {
-                            students.push(student);
-                        });
-                    });
 
-                    // Sort students by final_grade in descending order and take top 5
-                    students.sort((a, b) => b.final_grade - a.final_grade);
-                    students.slice(0, 5).forEach((student) => {
-                        box.innerHTML += `<div>Student ID: ${student.student_id}, Final Grade: ${student.final_grade}</div>`;
-                    });
+                console.log("Attempting to use Exam ID:", selectedExamId); // Debug log
 
-                    callback(box); // Call the callback with the box as argument
-                }).catch((error) => {
-                    console.log("Error getting documents: ", error);
-                });
+                if (selectedExamId) {
+                    db.collection("Graded").doc(selectedExamId).get().then((doc) => {
+                        if (doc.exists) {
+                            let students = doc.data().students;
+                            students.sort((a, b) => b.final_grade - a.final_grade);
+                            students.slice(0, 5).forEach((student) => {
+                                box.innerHTML += `<div>Student ID: ${student.student_id}, Final Grade: ${student.final_grade}</div>`;
+                            });
+
+                            callback(box); // Call the callback with the box as argument
+                        } else {
+                            box.innerHTML += '<div>No data found</div>';
+                            callback(box);
+                        }
+                    }).catch((error) => {
+                        console.log("Error getting documents:", error);
+                    });
+                } else {
+                    box.innerHTML += '<div>Please select a valid Exam ID.</div>';
+                    callback(box);
+                }
             }
+
 
             function createBox1_2() {
                 let box = document.createElement('div');

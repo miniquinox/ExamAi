@@ -49,8 +49,8 @@ def ask_gpt(question):
         "Authorization": f"Bearer {keys}"
     }
     data = {
-        # "model": "gpt-3.5-turbo",
-        "model": "gpt-4-turbo",
+        "model": "gpt-3.5-turbo",
+        # "model": "gpt-4-turbo",
         "messages": [
             {
                 "role": "system",
@@ -73,56 +73,73 @@ def load_firebase(database):
     ref = db.collection(database)
     return [doc.to_dict() for doc in ref.get()]
 
-# Process each student's data
-exam_results = {
-    "exam_id": "exam001",
-    "students": []
-}
+def grade_exam(exam_id):
+    # Process each student's data
+    exam_results = {
+        "exam_id": exam_id,
+        "students": []
+    }
 
-professor_json = load_firebase("Professor")
-midterm_questions = professor_json[0]["BAX 423 - Big Data Analytics"]["exams"]["MidTermExam"]["questions"]
+    professor_json = load_firebase("Professor")
 
-students_json = load_firebase("Student")
-for student_dict in students_json[0]["students"]:
-    for student_id, answers in student_dict.items():
-        student_result = {
-            "student_id": student_id,
-            "grades": [],
-            "final_grade": 0
-        }
-        total_score = 0
-        for question_dict in answers:
-            for question_id, student_answer in question_dict.items():
-                # print(question_id)
-                student_question = next((item for item in midterm_questions if item['text'] == question_id), None)
-                # print(student_question)
-                if student_question and student_answer:
-                    prompt = (
-                        "Below you have a question and an answer from a student. "
-                        "The question includes a set of rubrics and weights asigned to each rubric. "
-                        "The answer includes both the question and the student's response. "
-                        "Grade the student's answer based on the rubrics and weights provided in the question. "
-                        "The output must be a json following this format, and using double quotes: "
-                        '{"question_id": <insert the Question here>, "rubric_scores": [<score1>, <score2>, ...], "total_score": <sum of all rubrics scores>, "feedback": <Constructive feedback based on the students answer and how it could be improved>}'
-                        "Add your graded scores per rubric in the rubric_scores list based on your best assessment."
-                        "DO NOT DEVIATE FROM THIS FORMAT, DOING SO WILL HURT MY PROGRAM. Print everything in one line.\n\n"
-                        f"Question: {question_id}\n\n"
-                        f"Rubrics: {student_question['rubrics']}\n\n"
-                        f"Answer: {student_answer}\n\n"
-                        "Make sure the JSON is properly formatted and it has no syntax errors. Don't write code, just assess the student's answer."
-                    )
-                    # print(prompt, "\n\n")
-                    graded_response = ask_gpt(prompt)
-                    result_dict = json.loads(graded_response)
-                    total_score += result_dict["total_score"]
-                    student_result["grades"].append(result_dict)
-        student_result["final_grade"] = total_score
-        exam_results["students"].append(student_result)
+    # Find the exam in all courses
+    midterm_questions = None
+    for course, course_data in professor_json[0].items():
+        if "exams" in course_data and exam_id in course_data["exams"]:
+            midterm_questions = course_data["exams"][exam_id]["questions"]
+            break
 
-# Output the final JSON
-exam_results_json = json.dumps(exam_results, indent=4)
-print(exam_results_json)
+    if midterm_questions is None:
+        print(f"No exam found with id {exam_id}")
+        return
 
-# Update the document in Firestore
-doc_ref = db.collection('Graded').document(exam_results['exam_id'])
-doc_ref.set(exam_results, merge=True)
+    students_json = load_firebase("Student")
+
+    print(f"Grading exam {exam_id}")
+    print(f"content: {students_json}")
+
+    for student_dict in students_json[0]["students"]:
+        for student_id, answers in student_dict.items():
+            student_result = {
+                "student_id": student_id,
+                "grades": [],
+                "final_grade": 0
+            }
+            print(f"Grading student {student_id}")
+            total_score = 0
+            for question_dict in answers:
+                for question_id, student_answer in question_dict.items():
+                    student_question = next((item for item in midterm_questions if item['text'] == question_id), None)
+                    if student_question and student_answer:
+                        prompt = (
+                            "Below you have a question and an answer from a student. "
+                            "The question includes a set of rubrics and weights asigned to each rubric. "
+                            "The answer includes both the question and the student's response. "
+                            "Grade the student's answer based on the rubrics and weights provided in the question. "
+                            "The output must be a json following this format, and using double quotes: "
+                            '{"question_id": <insert the Question here>, "rubric_scores": [<score1>, <score2>, ...], "total_score": <sum of all rubrics scores>, "feedback": <Constructive feedback based on the students answer and how it could be improved>}'
+                            "Add your graded scores per rubric in the rubric_scores list based on your best assessment."
+                            "DO NOT DEVIATE FROM THIS FORMAT, DOING SO WILL HURT MY PROGRAM. Print everything in one line.\n\n"
+                            f"Question: {question_id}\n\n"
+                            f"Rubrics: {student_question['rubrics']}\n\n"
+                            f"Answer: {student_answer}\n\n"
+                            "Make sure the JSON is properly formatted and it has no syntax errors. Don't write code, just assess the student's answer."
+                        )
+                        graded_response = ask_gpt(prompt)
+                        result_dict = json.loads(graded_response)
+                        result_dict["answer"] = student_answer  # Add the student's answer
+                        total_score += result_dict["total_score"]
+                        student_result["grades"].append(result_dict)
+                        print(f"Graded question {question_id} for student {student_id}")
+            student_result["final_grade"] = total_score
+            exam_results["students"].append(student_result)
+
+    # Output the final JSON
+    exam_results_json = json.dumps(exam_results, indent=4)
+    print(exam_results_json)
+
+    # Update the document in Firestore
+    doc_ref = db.collection('Graded').document(exam_id)
+    doc_ref.set(exam_results, merge=True)
+
+print(grade_exam("FirstMidTerm"))

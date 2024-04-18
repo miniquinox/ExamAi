@@ -247,8 +247,9 @@
                                 questionsContainer.appendChild(questionLabel);
 
                                 const questionInput = document.createElement('textarea');
-                                questionInput.placeholder = `Enter answer for: ${question.text}`; // Placeholder with question text
+                                questionInput.placeholder = `Enter answer here...`; // Placeholder with question text
                                 questionInput.id = `question${index + 1}`;
+                                questionInput.style.marginBottom = '10px'; // Add space after the textarea
                                 questionsContainer.appendChild(questionInput);
                             });
                         }
