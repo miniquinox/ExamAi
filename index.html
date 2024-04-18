@@ -1,423 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professor's Exam Visualization Portal</title>
-    <!-- Firebase Libraries -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script>
-        const firebaseConfig = {
-            authDomain: "examai-0228.firebaseapp.com",
-            projectId: "examai-0228",
-            storageBucket: "examai-0228.appspot.com",
-            messagingSenderId: "105408726183895905662"
-        };
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Website</title>
+<script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.99/build/spline-viewer.js"></script>
+<style>
+    
+    body, html {
+        height: 100%;
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: black;
+        color: white;
+    }
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+    .spline-embed {
+        width: 100%;
+        height: 400px; /* Adjust as needed */
+    }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchInput');
-            const searchResults = document.getElementById('searchResults');
-            let selectedExamId = null; // Variable to store the selected exam_id
+    .card-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 50px; /* Increased from 10px to 50px */
+    }
 
-            function createAnchor(doc) {
-                let anchor = document.createElement('a');
-                anchor.textContent = doc.id;
-                anchor.href = '#';
-                anchor.className = 'search-result';
-                anchor.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    selectedExamId = doc.id; // Save the selected exam_id
-                    console.log("Selected Exam ID:", selectedExamId); // Debug log
-                    displayResults(doc); // Ensure this is called after setting the ID
-                });
-                return anchor;
-            }
+    .card {
+        position: relative; /* Added position: relative; */
+        width: 350px; /* Adjust as needed */
+        margin: 0 50px; /* Increased from 10px to 20px */
+        border-radius: 10px; /* Adjusted from 10px to 20px */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 
-            function displayResults(doc) {
-                searchResults.innerHTML = '';
-                const examContainer = createExamContainer();
-                const examData = doc.data();
-                const boxes = createStudentBoxes(examData);
-                populateColumns(examContainer, boxes);
-                searchResults.appendChild(examContainer);
-            }
+    .card img {
+        position: relative; /* Added position: relative; */
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 10px; /* Added border-radius to the images */
+        transition: all 0.5s ease; /* Added transition */
+        box-shadow: 0 0 10px #ffffff, 0 0 20px #ffda7d; /* Increased glow */
+    }
 
-            function createExamContainer() {
-                let container = document.createElement('div');
-                container.className = 'exam-container';
-                return container;
-            }
-
-            function createStudentBoxes(examData) {
-                return examData.students.map((student, index) => createStudentBox(student, index));
-            }
-
-            function createStudentBox(student, index) {
-                let box = document.createElement('div');
-                box.className = 'student-box';
-                box.innerHTML = `<div>Student ID: ${student.student_id}</div><div>Final Grade: ${student.final_grade}</div>`;
-                if (index === 1) {
-                    box.appendChild(createChartContainer());
-                }
-                return box;
-            }
-
-            function createChartContainer() {
-                let chartContainer = document.createElement('div');
-                chartContainer.className = 'chart-container';
-                chartContainer.innerHTML = `
-                    <div class="chart" data-percent="0" data-bar-color="#23afe3">
-                        <span class="percent" data-after="%">0</span>
-                    </div>
-                    <p>Average Score</p>
-                `;
-                return chartContainer;
-            }
-
-            function createBox1_1(callback) {
-                let box = document.createElement('div');
-                box.className = 'student-box';
-                box.innerHTML = '<h2 style="text-align: center;">Top 5 Students</h2>'; // Title for the box
-
-                console.log("Attempting to use Exam ID:", selectedExamId); // Debug log
-
-                if (selectedExamId) {
-                    db.collection("Graded").doc(selectedExamId).get().then((doc) => {
-                        if (doc.exists) {
-                            let students = doc.data().students;
-                            students.sort((a, b) => b.final_grade - a.final_grade);
-                            students.slice(0, 5).forEach((student) => {
-                                box.innerHTML += `<div>Student ID: ${student.student_id}, Final Grade: ${student.final_grade}</div>`;
-                            });
-
-                            callback(box); // Call the callback with the box as argument
-                        } else {
-                            box.innerHTML += '<div>No data found</div>';
-                            callback(box);
-                        }
-                    }).catch((error) => {
-                        console.log("Error getting documents:", error);
-                    });
-                } else {
-                    box.innerHTML += '<div>Please select a valid Exam ID.</div>';
-                    callback(box);
-                }
-            }
-
-
-            function createBox1_2() {
-                let box = document.createElement('div');
-                box.className = 'student-box';
-                box.innerHTML = '<div>Dummy data for box 1_2</div>';
-                return box;
-            }
-
-            function createBox2_1() {
-                let box = document.createElement('div');
-                box.className = 'student-box';
-                box.innerHTML = '<div>Dummy data for box 2_1</div>';
-                return box;
-            }
-
-            function createBox2_2() {
-                let box = document.createElement('div');
-                box.className = 'student-box';
-                box.innerHTML = '<div>Dummy data for box 2_2</div>';
-                return box;
-            }
-
-            function createBox2_3() {
-                let box = document.createElement('div');
-                box.className = 'student-box';
-                box.innerHTML = '<div>Dummy data for box 2_3</div>';
-                return box;
-            }
-
-            function createBox3_1() {
-                let box = document.createElement('div');
-                box.className = 'student-box';
-                box.innerHTML = '<div>Dummy data for box 3_1</div>';
-                return box;
-            }
-
-            function createBox3_2() {
-                let box = document.createElement('div');
-                box.className = 'student-box';
-                box.innerHTML = '<div>Dummy data for box 3_2</div>';
-                return box;
-            }
-
-            async function populateColumns(examContainer) {
-                const columnsConfig = [2, 3, 2]; // Number of boxes per column
-                for (let columnIndex = 0; columnIndex < columnsConfig.length; columnIndex++) {
-                    let numBoxes = columnsConfig[columnIndex];
-                    let columnDiv = document.createElement('div');
-                    columnDiv.className = 'column';
-                    for (let i = 0; i < numBoxes; i++) {
-                        let box;
-                        if (columnIndex === 0 && i === 0) { // If it's the first box of the first column
-                            box = await new Promise(resolve => createBox1_1(resolve));
-                        } else if (columnIndex === 0 && i === 1) { // If it's the second box of the first column
-                            box = createBox1_2();
-                        } else if (columnIndex === 1 && i === 0) { // If it's the first box of the second column
-                            box = createBox2_1();
-                        } else if (columnIndex === 1 && i === 1) { // If it's the second box of the second column
-                            box = createBox2_2();
-                        } else if (columnIndex === 1 && i === 2) { // If it's the third box of the second column
-                            box = createBox2_3();
-                        } else if (columnIndex === 2 && i === 0) { // If it's the first box of the third column
-                            box = createBox3_1();
-                        } else if (columnIndex === 2 && i === 1) { // If it's the second box of the third column
-                            box = createBox3_2();
-                        }
-                        box.classList.add(`height-${numBoxes}-${i + 1}`);
-                        columnDiv.appendChild(box);
-                    }
-                    examContainer.appendChild(columnDiv);
-                }
-            }
-
-            function createEmptyBox() {
-                let emptyBox = document.createElement('div');
-                emptyBox.className = 'student-box empty-box';
-                return emptyBox;
-            }
-
-            searchInput.addEventListener('input', function(event) {
-                const searchTerm = event.target.value.trim();
-                if (searchTerm.length > 0) {
-                    db.collection("Graded").where("exam_id", ">=", searchTerm)
-                        .where("exam_id", "<=", searchTerm + '\uf8ff')
-                        .get()
-                        .then(querySnapshot => {
-                            searchResults.innerHTML = '';
-                            querySnapshot.forEach(doc => {
-                                searchResults.appendChild(createAnchor(doc));
-                            });
-                        }).catch(error => console.log("Error getting documents: ", error));
-                } else {
-                    searchResults.innerHTML = '';
-                }
-            });
-        });
-
-
-    </script>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" integrity="sha384-vp86vTRFVJgpjF9jiT9ODllV9BG2sIb6bTy0FgRDpNI6Vib8xDUI8ble25BLpp2j" crossorigin="anonymous">
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-image: url('https://images6.alphacoders.com/125/1257448.jpg');
-            background-size: cover;
-            background-attachment: fixed;
+    @keyframes glow {
+        0% {
+            box-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff, 0 0 15px #ffffff, 0 0 20px #ffffff;
         }
-        .frosted-card {
-            backdrop-filter: blur(10px);
-            background: rgba(76, 76, 76, 0.5); /* Make the background darker */
-            border-radius: 20px;
-            padding: 40px 20px; /* Increase vertical padding */
-            min-height: 750px; /* Add a minimum height */
-            min-width: auto; /* Ensure no minimum width is set */
-            margin: 40px auto 0 auto; /* Remove bottom margin */
-            max-width: 1300px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            color: #484848;
-            overflow: hidden;
+        50% {
+            box-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff, 0 0 30px #ffffff, 0 0 40px #ffffff;
         }
+        100% {
+            box-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff, 0 0 15px #ffffff, 0 0 20px #ffffff;
+        }
+    }
 
-        @media (max-width: 768px) {
-            body {
-                padding: 0 20px; /* Add horizontal padding */
-            }
-            .frosted-card {
-                margin: 20px 0 0 0; /* Add 20px margin to the top, no margin to the bottom */
-            }
-        }
-        .title-bar {
-            text-align: center;
-            padding: 20px;
-            background-color: #100e174f;
-            border-radius: 20px;
-        }
-
-        .exam-container {
-            display: flex;
-            justify-content: space-between; /* Adjust space between columns */
-            align-items: stretch; /* Stretch columns vertically */
-            height: 100%; /* Full height */
-            padding: 0 10px; /* Padding inside the container to the sides */
-            margin: 20px 0; /* Margin on top and bottom */
-        }
-
-        .column {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between; /* Space between boxes */
-            flex: 1; /* Equal width */
-            padding: 0 10px; /* Padding inside each column */
-            margin: 0; /* No additional margin for columns */
-        }
-
-        .column > :last-child {
-            margin-bottom: 0;
-        }
-
-        /* Boxes within the columns */
-        .student-box, .empty-box {
-            margin-bottom: 10px; /* Space between boxes */
-            margin-right: 0; /* Remove margin-right if any */
-            margin-left: 0; /* Remove margin-left if any */
-            flex-grow: 1; /* Grow to fill column */
-            background: rgba(0, 0, 0, 0.237);
-            border-radius: 10px;
-            color: white;
-            text-align: left;
-            margin-bottom: 20px; /* Space between boxes */
-            padding: 0 20px;
-            flex-grow: 1; /* Boxes will grow equally to fill the column */
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start; /* Align the content to the top */
-            border: 2px solid rgba(122, 122, 122, 0.457); /* Add a white border */
-        }
-
-        .student-box:hover {
-            backdrop-filter: blur(5px);
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-
-
-        .title-bar h1 {
-            color: white;
-            margin: 0;
-        }
-
-        .title-bar h2 {
-            color: purple;
-            margin: 0;
-        }
-
-        .title-bar h2 span {
-            color: #800080;
-        }
-
-        .title-bar p {
-            color: lightgray;
-            margin: 0;
-        }
-
-        .topbar {
-            padding: 10px 20px;
-            /* background-color: #100e174f; */
-            display: flex;
-            justify-content: center;
-        }
-        .glow {
-            outline: none;
-            border: none;
-            animation: glow 1s linear infinite;
-        }
-
-        @keyframes glow {
-            0% {
-                box-shadow: 0 0 5px #ffffff, 0 0 10px #ffa200, 0 0 15px #5b5b5b;
-            }
-            33% {
-                box-shadow: 0 0 5px #5b5b5b, 0 0 10px #ffffff, 0 0 15px #ffa200;
-            }
-            66% {
-                box-shadow: 0 0 5px #ffa200, 0 0 10px #5b5b5b, 0 0 15px #ffffff;
-            }
-            100% {
-                box-shadow: 0 0 5px #ffffff, 0 0 10px #ffa200, 0 0 15px #5b5b5b;
-            }
-        }
-
-        .height-2-1 {
-            height: 200px; /* Adjust this value to your preference */
-        }
-
-        .height-2-2 {
-            height: 200px; /* Adjust this value to your preference */
-        }
-
-        .height-3-1 {
-            height: 120px; /* Adjust this value to your preference */
-        }
-
-        .height-3-2 {
-            height: 120px; /* Adjust this value to your preference */
-        }
-
-        .height-3-3 {
-            height: 120px; /* Adjust this value to your preference */
-        }
-
-        input[type="search"] {
-            width: 300px;
-            padding: 10px;
-            border-radius: 15px;
-            border: 2px solid #dcc464;
-            background: transparent;
-            color: #fff;
-            outline: none;
-            margin-top: 20px; /* Add space between the search bar and the top element */
-        }
-
-        input[type="search"]::placeholder {
-            color: rgb(255, 255, 255);
-        }
-
-        select {
-            width: 100%;
-            padding: 5px 10px;
-            border-radius: 5px;
-            background-color: #1b1b2f;
-            color: #21e6c1;
-            border: 1px solid #21e6c1;
-        }
-
-        .search-result {
-            /* Updated styles for search results */
-            margin-bottom: 10px;
-            border-radius: 5px;
-            background-color: rgba(255, 255, 255, 0.1); /* Fallback for browsers that do not support backdrop-filter */
-            color: #fff;
-            text-align: center;
-            display: block;
-            padding: 10px;
-            text-decoration: none;
-        }
-
-        .search-result:hover {
-            backdrop-filter: blur(5px);
-            background-color: rgba(255, 255, 255, 0.2); /* Slightly darker on hover */
-        }
-        
-    </style>
+    .card img:hover {
+        animation: glow 2s infinite;
+    }
+    .card-title {
+        position: absolute;
+        top: -70px; /* Positioned above the top of the image */
+        left: 50%; /* Center the title horizontally */
+        transform: translateX(-50%); /* Ensure the centering is accurate */
+        width: 100%; /* Allow the title to take the full width of the card */
+        text-align: center; /* Center the text */
+        color: rgb(214, 214, 214); /* Changed color to black for contrast */
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        font-family: 'Roboto', sans-serif; /* Use the Google Font */
+        font-weight: 700; /* Make the font bold */
+        z-index: 2; /* Added z-index to ensure the title is above the image */
+        font-size: 24px; /* Increased font size */
+    }
+</style>
 </head>
 <body>
-    <div class="frosted-card">
-        <div class="title-bar">
-            <h1 style="color: white; font-size: 4em; font-weight: bold;">Grade college exams in seconds</h1>
-            <h2 style="background: linear-gradient(to right, #f0b80f, #d1d1d1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 3em;">powered by <span>ExamAi</span></h2>
-            <p style="color: lightgray; font-size: 1.5em;">Search your exam ID right below, without having to sign up!</p>
+
+<div class="spline-embed">
+    <spline-viewer url="https://prod.spline.design/DWDNI2ysW7BmCv8p/scene.splinecode"></spline-viewer>
+</div>
+
+<div class="card-container">
+    <a href="professor_app.html">
+        <div class="card">
+            <h2 class="card-title">Exam Creation</h2>
+            <img src="Exam Creation.png" alt="Imagine Card">
         </div>
-        <div class="topbar">
-            <input type="search" id="searchInput" placeholder="Search Exam IDs" class="glow">
+    </a>
+
+    <a href="platform.html">
+        <div class="card">
+            <h2 class="card-title">AI Portal</h2>
+            <img src="Ai Portal.png" alt="Capture Card">
         </div>
-        <div class="content">
-            <div id="searchResults">
-                <!-- Options will be dynamically added here -->
-            </div>
+    </a>
+
+    <a href="student_app.html">
+        <div class="card">
+            <h2 class="card-title">Student Platform</h2>
+            <img src="Student platform.png" alt="Capture Card">
         </div>
-    </div>
+    </a>
+</div>
+
+<script>
+    const cards = document.querySelectorAll('.card');
+
+    document.body.addEventListener('mousemove', (e) => {
+        cards.forEach((card) => {
+            const rect = card.getBoundingClientRect();
+            const xAxis = -(rect.left + rect.width / 2 - e.pageX) / 40; // Decreased the divisor
+            const yAxis = -(rect.top + rect.height / 2 - e.pageY) / 40; // Decreased the divisor
+            card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+        });
+    });
+
+    document.body.addEventListener('mouseleave', (e) => {
+        cards.forEach((card) => {
+            card.style.transition = "all 0.5s ease";
+            card.style.transform = `rotateY(0deg) rotateX(0deg)`;
+        });
+    });
+</script>
 </body>
 </html>
