@@ -557,6 +557,52 @@
             background-color: rgba(255, 255, 255, 0.2); /* Slightly darker on hover */
         }
         
+        .pie-chart {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            position: relative;
+            margin: 20px auto;
+            background: conic-gradient(#23afe3 0%, #23afe3 var(--percent), #e0e0e0 var(--percent), #e0e0e0 100%);
+        }
+
+        .pie-chart .percent {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            color: #333;
+        }
+
+        .bar-container {
+            display: flex; /* Use flexbox to arrange bars side by side */
+            justify-content: space-around; /* Evenly space the bars */
+            align-items: flex-end; /* Align bars to the bottom */
+            width: 100%; /* Full width of the container */
+            height: 300px; /* Fixed height for the bars */
+            margin: 10px 0; /* Spacing between bar containers */
+            background: #ffffff10; /* Semi-transparent white background */
+            border-radius: 5px;
+            padding: 5px 0; /* Padding to ensure bars don't touch the edges */
+        }
+
+        .bar {
+            height: 90%; /* Make the bars stretch to most of the container height */
+            background-color: #23afe3;
+            width: 15px; /* Fixed width for each bar */
+            border-radius: 3px;
+            transition: all 0.6s ease;
+        }
+
+        .bar-label {
+            color: #fff;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 5px; /* Space between the bar and the label */
+        }
+        
+
     </style>
 </head>
 <body>
