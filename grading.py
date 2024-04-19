@@ -2,6 +2,7 @@ import json
 import requests
 import firebase_admin
 from firebase_admin import credentials, firestore
+import time
 
 # Initialize Firebase Admin using the service account
 part1 = "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDTJyq9aT0aR24T\n6V/tk+7QC1nvxmLOKWDmJ8RDKTFYz86j"
@@ -95,16 +96,38 @@ def grade_exam(exam_id):
 
     students_json = load_firebase("Student")
 
-    print(f"Grading exam {exam_id}")
-    print(f"content: {students_json}")
+    # print(f"Grading exam {exam_id}")
+    # print(f"content: {students_json}")
 
     for student_dict in students_json[0]["students"]:
         for student_id, answers in student_dict.items():
+            # Print student['student_id'] and student_id
+            print(f"Processing student {student_id}")
+            
+            # Check if student is already graded
+            doc_ref = db.collection('Graded').document(exam_id)
+            doc = doc_ref.get()
+
+            student_found = False
+
+            if doc.exists:
+                graded_students = doc.to_dict()["students"]
+                for student in graded_students:
+                    if student['student_id'] == student_id:
+                        print(f"Skipping grading for student {student_id} as they are already graded.")
+                        exam_results["students"].append(student)
+                        student_found = True
+                        break
+
+            if student_found:
+                continue
+
             student_result = {
                 "student_id": student_id,
                 "grades": [],
                 "final_grade": 0
             }
+
             print(f"Grading student {student_id}")
             total_score = 0
             for question_dict in answers:
@@ -142,4 +165,4 @@ def grade_exam(exam_id):
     doc_ref = db.collection('Graded').document(exam_id)
     doc_ref.set(exam_results, merge=True)
 
-print(grade_exam("FirstMidTerm"))
+grade_exam("FirstMidTerm")
