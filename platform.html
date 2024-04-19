@@ -95,7 +95,14 @@
                             let students = doc.data().students;
                             students.sort((a, b) => b.final_grade - a.final_grade);
                             students.slice(0, 5).forEach((student) => {
-                                box.innerHTML += `<div>Student: ${student.student_id}, Final Grade: ${student.final_grade}</div>`;
+                                box.innerHTML += `
+                                    <table>
+                                        <tr>
+                                            <td style="width: 150px;">Student: ${student.student_id}</td>
+                                            <td>Final Grade: ${student.final_grade}</td>
+                                        </tr>
+                                    </table>
+                                `;
                             });
 
                             callback(box); // Call the callback with the box as argument
@@ -169,6 +176,11 @@
                     },
                     options: {
                         responsive: true,
+                        layout: {
+                            padding: {
+                                right: 20 // Add 20px padding to the right
+                            }
+                        },
                         plugins: {
                             legend: {
                                 display: false
@@ -213,11 +225,12 @@
                     }]
                 });
             }
-            
+
+
             function createBox2_1() {
                 let box = document.createElement('div');
                 box.className = 'student-box';
-                box.innerHTML = '<h2 style="text-align: center;">Bottom 5 Students</h2>'; // Title for the box
+                box.innerHTML = '<h2 style="text-align: center;">Bottom 2 Students</h2>'; // Title for the box
 
                 console.log("Attempting to use Exam ID:", selectedExamId); // Debug log
 
@@ -226,7 +239,7 @@
                         if (doc.exists) {
                             let students = doc.data().students;
                             students.sort((a, b) => a.final_grade - b.final_grade); // Sort students by final grade in ascending order
-                            students.slice(0, 5).forEach((student) => {
+                            students.slice(0, 2).forEach((student) => {
                                 box.innerHTML += `<div>Student: ${student.student_id}, Final Grade: ${student.final_grade}</div>`;
                             });
                         } else {
@@ -245,21 +258,30 @@
             function createBox2_2() {
                 let box = document.createElement('div');
                 box.className = 'student-box';
-                box.innerHTML = '<h2 style="text-align: center;">Avg Class Score</h2><canvas id="averageScoreChart"></canvas>'; // Title and canvas for the chart
+                box.innerHTML = '<div>Dummy data for box 2_2</div>';
+                return box;
+            }
 
+            function createBox2_3() {
+                let box = document.createElement('div');
+                box.className = 'student-box';
+                box.style.height = '200px'; // Adjust the height as needed
+                box.innerHTML = '<h2 style="text-align: center; margin-bottom: 10px;">Grade Distribution</h2><canvas id="gradeDistributionChart"></canvas>'; // Removed fixed height from canvas            
                 console.log("Attempting to use Exam ID:", selectedExamId); // Debug log
 
                 if (selectedExamId) {
                     db.collection("Graded").doc(selectedExamId).get().then((doc) => {
                         if (doc.exists) {
                             let students = doc.data().students;
-                            let totalScore = 0;
-                            students.forEach(student => {
-                                totalScore += student.final_grade;
-                            });
-                            let averageScore = totalScore / students.length;
-                            let chartPercentage = averageScore.toFixed(2); // Convert average to a percentage for the pie chart
-                            drawChart(chartPercentage);
+                            let grades = students.map(student => student.final_grade);
+                            let minGrade = Math.min(...grades);
+                            let maxGrade = Math.max(...grades);
+                            let meanGrade = grades.reduce((acc, curr) => acc + curr, 0) / grades.length;
+                            grades.sort((a, b) => a - b);
+                            let lowerQuartile = grades[Math.floor(grades.length * 0.25)];
+                            let upperQuartile = grades[Math.floor(grades.length * 0.75)];
+
+                            drawDistributionChart(minGrade, maxGrade, meanGrade, lowerQuartile, upperQuartile);
                         } else {
                             box.innerHTML += '<div>No data found</div>';
                         }
@@ -273,18 +295,63 @@
                 return box;
             }
 
-            function createBox2_3() {
-                let box = document.createElement('div');
-                box.className = 'student-box';
-                box.innerHTML = '<div>Dummy data for box 2_3</div>';
-                return box;
+            function drawDistributionChart(minGrade, maxGrade, meanGrade, lowerQuartile, upperQuartile) {
+                const canvas = document.getElementById('gradeDistributionChart');
+                const ctx = canvas.getContext('2d');
+                
+                // Set the height of the canvas
+                canvas.style.height = '120px'; // Adjust the height as needed
+                const gradeDistributionChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Min', 'Lower 25%', 'Mean', 'Upper 25%', 'Max'],
+                        datasets: [{
+                            label: 'Grade Distribution',
+                            data: [minGrade, lowerQuartile, meanGrade, upperQuartile, maxGrade],
+                            fill: false,
+                            borderColor: 'rgb(255, 165, 0)', // Change the color to orange
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: {
+                                    color: 'white' // Make the legend labels white
+                                }
+                            },
+                            tooltip: {
+                                enabled: true,
+                                bodyColor: 'white', // Make the tooltip text white
+                                titleColor: 'white' // Make the tooltip title white
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                suggestedMin: minGrade, // Slight padding below min
+                                suggestedMax: maxGrade, // Slight padding above max
+                                ticks: {
+                                    color: 'white' // Make the y-axis labels white
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: 'white' // Make the x-axis labels white
+                                }
+                            }
+                        }
+                    }
+                });
             }
 
             function createBox3_1() {
                 let box = document.createElement('div');
                 box.className = 'student-box';
-                box.style.height = '330px'; // Keep the box height to accommodate the chart
-                box.innerHTML = '<h2 style="text-align: center;">Grade Distribution</h2><canvas id="gradeDistributionChart"></canvas>'; // Canvas for the chart
+                box.style.height = 'auto'; // Change the box height to auto
+                box.innerHTML = '<h2 style="text-align: center;">Grade Distribution</h2><canvas id="gradeDistributionPlot"></canvas>'; // Canvas for the chart
 
                 if (selectedExamId) {
                     db.collection("Graded").doc(selectedExamId).get().then((doc) => {
@@ -299,7 +366,7 @@
                                 bins[index]++;
                             });
 
-                            drawGradeDistributionChart(bins); // Call the function to draw the histogram
+                            drawgradeDistributionPlot(bins); // Call the function to draw the histogram
                         } else {
                             box.innerHTML += '<div>No data found</div>';
                         }
@@ -313,17 +380,26 @@
                 return box;
             }
 
-            function drawGradeDistributionChart(bins) {
-                var ctx = document.getElementById('gradeDistributionChart').getContext('2d');
-                var chart = new Chart(ctx, {
+            let gradeDistributionPlot; // Declare a global variable to hold your chart instance
+
+            function drawgradeDistributionPlot(bins) {
+                const ctx = document.getElementById('gradeDistributionPlot').getContext('2d');
+
+                // Check if gradeDistributionPlot is already an instance of Chart. If it is, destroy it.
+                if (gradeDistributionPlot instanceof Chart) {
+                    gradeDistributionPlot.destroy();
+                }
+
+                // Create a new chart and assign it to gradeDistributionPlot
+                gradeDistributionPlot = new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: ['0-9%', '10-19%', '20-29%', '30-39%', '40-49%', '50-59%', '60-69%', '70-79%', '80-89%', '90-100%'],
                         datasets: [{
                             label: 'Number of Students',
                             data: bins,
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(153, 51, 255, 0.5)', // Lighter purple with 50% opacity
+                            borderColor: 'rgba(153, 51, 255, 1)', // Solid brighter purple
                             borderWidth: 1
                         }]
                     },
@@ -361,87 +437,8 @@
             function createBox3_2() {
                 let box = document.createElement('div');
                 box.className = 'student-box';
-                box.innerHTML = '<h2 style="text-align: center;">Average Scores Per Question</h2><canvas id="questionScoresChart"></canvas>'; // Title and canvas for the chart
-
-                console.log("Attempting to use Exam ID:", selectedExamId); // Debug log
-
-                if (selectedExamId) {
-                    db.collection("Graded").doc(selectedExamId).get().then((doc) => {
-                        if (doc.exists) {
-                            let students = doc.data().students;
-                            let questionScores = {};
-
-                            // Accumulate scores for each question
-                            students.forEach(student => {
-                                student.total_score.forEach((score, index) => {
-                                    let questionId = `question_${index + 1}`; // Assuming questions are named question_1, question_2, etc.
-                                    if (!questionScores[questionId]) {
-                                        questionScores[questionId] = [];
-                                    }
-                                    questionScores[questionId].push(score);
-                                });
-                            });
-
-                            // Calculate average score for each question
-                            let questionAverages = Object.keys(questionScores).map(questionId => {
-                                let scores = questionScores[questionId];
-                                let average = scores.reduce((acc, curr) => acc + curr, 0) / scores.length;
-                                return { question: questionId, average };
-                            });
-
-                            // Sort by question number
-                            questionAverages.sort((a, b) => {
-                                let numA = parseInt(a.question.replace('question_', ''));
-                                let numB = parseInt(b.question.replace('question_', ''));
-                                return numA - numB;
-                            });
-
-                            drawQuestionChart(questionAverages); // Function to draw the chart
-                        } else {
-                            box.innerHTML += '<div>No data found</div>';
-                        }
-                    }).catch((error) => {
-                        console.error("Error getting documents:", error);
-                        box.innerHTML += '<div>Error retrieving data</div>';
-                    });
-                } else {
-                    box.innerHTML += '<div>Please select a valid Exam ID.</div>';
-                }
+                box.innerHTML = '<div>Dummy data for box 3_2</div>';
                 return box;
-            }
-
-            function drawQuestionChart(questionAverages) {
-                var ctx = document.getElementById('questionScoresChart').getContext('2d');
-                var chart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: questionAverages.map(q => q.question),
-                        datasets: [{
-                            label: 'Average Score',
-                            data: questionAverages.map(q => q.average),
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        },
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                            },
-                            tooltip: {
-                                mode: 'index',
-                                intersect: false
-                            }
-                        }
-                    }
-                });
             }
 
             async function populateColumns(examContainer) {
@@ -563,7 +560,7 @@
 
         /* Boxes within the columns */
         .student-box, .empty-box {
-            margin-bottom: 10px; /* Space between boxes */
+            margin-bottom: 0px; /* Space between boxes */
             margin-right: 0; /* Remove margin-right if any */
             margin-left: 0; /* Remove margin-left if any */
             flex-grow: 1; /* Grow to fill column */
@@ -757,14 +754,7 @@
             color: #fff;
             margin-left: 5px; /* Space between bar and label */
         }
-        .student-box {
-            display: flex;
-            flex-direction: column;
-            justify-content: center; /* Aligns children vertically in the center */
-            align-items: center; /* Aligns children horizontally in the center */
-            text-align: center; /* Ensures text is centered */
-            height: 100%; /* Use full height of the container */
-        }
+        
 
     </style>
 </head>
