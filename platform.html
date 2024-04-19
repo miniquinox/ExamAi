@@ -276,12 +276,17 @@
                             let grades = students.map(student => student.final_grade);
                             let minGrade = Math.min(...grades);
                             let maxGrade = Math.max(...grades);
-                            let meanGrade = grades.reduce((acc, curr) => acc + curr, 0) / grades.length;
                             grades.sort((a, b) => a - b);
                             let lowerQuartile = grades[Math.floor(grades.length * 0.25)];
                             let upperQuartile = grades[Math.floor(grades.length * 0.75)];
+                            let medianGrade;
+                            if (grades.length % 2 === 0) {
+                                medianGrade = (grades[grades.length / 2 - 1] + grades[grades.length / 2]) / 2;
+                            } else {
+                                medianGrade = grades[Math.floor(grades.length / 2)];
+                            }
 
-                            drawDistributionChart(minGrade, maxGrade, meanGrade, lowerQuartile, upperQuartile);
+                            drawDistributionChart(minGrade, maxGrade, medianGrade, lowerQuartile, upperQuartile);
                         } else {
                             box.innerHTML += '<div>No data found</div>';
                         }
@@ -295,7 +300,7 @@
                 return box;
             }
 
-            function drawDistributionChart(minGrade, maxGrade, meanGrade, lowerQuartile, upperQuartile) {
+            function drawDistributionChart(minGrade, maxGrade, medianGrade, lowerQuartile, upperQuartile) {
                 const canvas = document.getElementById('gradeDistributionChart');
                 const ctx = canvas.getContext('2d');
                 
@@ -304,10 +309,10 @@
                 const gradeDistributionChart = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: ['Min', 'Lower 25%', 'Mean', 'Upper 25%', 'Max'],
+                        labels: ['Min', 'Lower 25%', 'Median', 'Upper 25%', 'Max'],
                         datasets: [{
                             label: 'Grade Distribution',
-                            data: [minGrade, lowerQuartile, meanGrade, upperQuartile, maxGrade],
+                            data: [minGrade, lowerQuartile, medianGrade, upperQuartile, maxGrade],
                             fill: false,
                             borderColor: 'rgb(255, 165, 0)', // Change the color to orange
                             tension: 0.1
