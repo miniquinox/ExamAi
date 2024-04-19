@@ -128,11 +128,10 @@ def grade_exam(exam_id):
                 "final_grade": 0
             }
 
-            print(f"Grading student {student_id}")
             total_score = 0
             for question_dict in answers:
                 for question_id, student_answer in question_dict.items():
-                    student_question = next((item for item in midterm_questions if item['text'] == question_id), None)
+                    question_number, student_question = next(((item['question_id'], item) for item in midterm_questions if item['text'] == question_id), (None, None))
                     if student_question and student_answer:
                         prompt = (
                             "Below you have a question and an answer from a student. "
@@ -152,14 +151,15 @@ def grade_exam(exam_id):
                         result_dict = json.loads(graded_response)
                         result_dict["answer"] = student_answer  # Add the student's answer
                         total_score += result_dict["total_score"]
+                        result_dict["question_number"] = question_number
                         student_result["grades"].append(result_dict)
-                        print(f"Graded question {question_id} for student {student_id}")
+                        print(f"Graded question {question_number} for student {student_id}")
             student_result["final_grade"] = total_score
             exam_results["students"].append(student_result)
 
     # Output the final JSON
     exam_results_json = json.dumps(exam_results, indent=4)
-    print(exam_results_json)
+    # print(exam_results_json)
 
     # Update the document in Firestore
     doc_ref = db.collection('Graded').document(exam_id)
