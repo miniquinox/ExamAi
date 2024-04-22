@@ -22,6 +22,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install firebase-admin
 
-      - name: Run firebase_test.py
-        run: python firebase_test.py
+      - name: Run grading.py
+        run: python grading.py
       
