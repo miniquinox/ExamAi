@@ -5,22 +5,7 @@ from firebase_admin import credentials, firestore
 import time
 import os
 
-ANTHONY = os.environ.get('ANTHONY').replace('\\n', '\n')# Initialize Firebase Admin using the service account
-part1 = "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDTJyq9aT0aR24T\n6V/tk+7QC1nvxmLOKWDmJ8RDKTFYz86j"
-part_11 = "nhMEoiXQXH0ubWLU6wabaeTibqGOACz0\nfjK3Na7m3d1UCrqt/IXzhZ+TkJirSVzfEys6bxk0Y8cDcyLJrrj2PqesXSlzEx/y\nMvNoiCBph9wwDFEZQ4zI/1DcU"
-part_12 = "996zhk1Te0XlCuUfXIrm2a/kLraVS9cI2TWmPqH\nuJH7N7/ZnHzdc/XOL6tlWBHr11qZK3laMyHXExG2GvmBnJDXCr+UCbLnq5xDjEZ+\n3fKtbelmufdZQDqAuyqM6"
-part2 = "33jAoZijS6o+TsDvFMJkyghKlTNDT/GnHgkWRlchrPP\n1VfcQprTAgMBAAECggEAVxw4cK3i7F19ly9XSO8XvbKBJv9EMeM2O506Ra7P0eDh\nUfTbybSPPxd4+V"
-part_21 = "ddR5OyRRl5uMSFV8zQvwj1KUo3Xr03Gv3WKAMey+lbfQhRQ5Df\nhJQm6FN/JXLoXo74UhYH7mbIy74fZH8GVegZLQ3DuWW4PAZIytBoW1+hX1QmxUVT\naSvD6H"
-part_22 = "3j9db6auHZihaDGBYPDwxNH0lMy0eoFFOpiH9KY4Lc4XYEIfQqk/peiUEE\n84P7f4QTfZkUWXguonVDwQQKzRPMyWLwFHCjqZec2VtPDH7yGDSTWKzQbYv+XmLy\ndoH"
-part_23 = "pcbT+hD2Bn1XLgOA/abmhnjDvtGk71T57hq4UsQKBgQDz4kKrex56Sl0VE1HJ\n3rXfSTgL/MueJh3yIMCzG2LsB+767UR7pRYsAJ7p0x8zH9pTRBgwd/ITogLF"
-part_24 = "wthC\nrvBMhOCuL5UP92xX3seyhiObhqZ88YSRRi14u8RCFhsRU7owmmn0BGlsCYvlFL6g\nkkWlZKOhBcHIz+TZIgytX7L62QKBgQDdpKHmRBxrT3UwhybZlN6iRt"
-part_25 = "dmuI0+QIo4\nNAX+hKvIY5k8kHm04ZNSwlrAJmIGF20iv5UphktuJpwKx3t"
-part3 = "2jX43k038Nxo2sNpy\npCHz5FX5hUph1haqr3lGeF2U89M+J+mpVBB+ly9f2Czaad70yfvWi7y4tVV7Ke7g\n0cLdK4E/iwKBgALGro+ZJS2rLwgQYjv0Bwn1oWexhvf"
-part_31 = "T4z9gVBE13JhnNrcwgDkQ\nFgKGN0jeGFrSn/+WpNfYZa8HhxSNNTz9FMsqMAyLihzWaitN4+QKVtlsXPTLIwEs\nVVQsfv1plwFJfLMU7uPSMQkDys3ewJS/VX+"
-part_32 = "ed6ZblGsewrIeCxrmHflxAoGBAMMT\n7fNPq3u/ubN2oPkMkE9f7qJYeOh7wavqDgSQHOoIz4yA1L4hdJt4uIs6vTgDUmkt\nGkosCyPuE5VhMgeMTbT4j8EXdpkAW"
-part_33 = "6RfVgrlw84URP2LgvPD8gfWVPePCzQ/yObi\nOIpS4r2G9SNf336wcFnLL9WatJvssnVp6grkCaQ1AoGBAKbD8qiMG+x+Nd4/GWxW\n7Ahl1N+wgdsrn6VbTVNP7oA0"
-part_34 = "ju7blRPZlLw7AuETULKl/LYT93aebdTax20Wo7/Q\nb9jn5Pfghiu/Z1De1ZdqZNxQSkKVTR2WHr1rgBtMg02yfaiSavibOIUVT1HEDyli\nKxpaNP3T4/7IZbjGiZ9"
-part_35 = "hJOAb\n-----END PRIVATE KEY-----\n"
+ANTHONY = os.environ.get('ANTHONY').replace('\\n', '\n')
 
 my_cred = {
   "type": "service_account",
