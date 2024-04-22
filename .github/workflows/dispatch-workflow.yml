@@ -23,6 +23,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install firebase-admin
 
+        env:
+          ANTHONY: ${{ secrets.ANTHONY }}  # Fetches ANTHONY from repository secrets
+
       - name: Run grading.py
         run: python grading.py
+        env:
+          ANTHONY: ${{ secrets.ANTHONY }}  # Fetches ANTHONY from repository secrets
+
       
