@@ -3,7 +3,9 @@ import requests
 import firebase_admin
 from firebase_admin import credentials, firestore
 import time
+import os
 
+ANTHONY = os.environ['ANTHONY']
 # Initialize Firebase Admin using the service account
 part1 = "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDTJyq9aT0aR24T\n6V/tk+7QC1nvxmLOKWDmJ8RDKTFYz86j"
 part_11 = "nhMEoiXQXH0ubWLU6wabaeTibqGOACz0\nfjK3Na7m3d1UCrqt/IXzhZ+TkJirSVzfEys6bxk0Y8cDcyLJrrj2PqesXSlzEx/y\nMvNoiCBph9wwDFEZQ4zI/1DcU"
@@ -25,7 +27,7 @@ my_cred = {
   "type": "service_account",
   "project_id": "examai-0228",
   "private_key_id": "cb201016aa944bde90a2ab94f094a259cb63c2bd",
-  "private_key": part1 + part_11 + part_12 + part2 + part_21 + part_22 + part_23 + part_24 + part_25 + part3 + part_31 + part_32 + part_33 + part_34 + part_35,
+  "private_key": ANTHONY,
   "client_email": "firebase-adminsdk-cxdcl@examai-0228.iam.gserviceaccount.com",
   "client_id": "105408726183895905662",
   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
@@ -52,10 +54,11 @@ def ask_gpt(question):
     data = {
         "model": "gpt-3.5-turbo",
         # "model": "gpt-4-turbo",
+        # "model": "gpt-4",
         "messages": [
             {
                 "role": "system",
-                "content": "You are a college professor who will grade assignments based on student submissions and rubrics."
+                "content": "You are a college professor who will grade assignments based on student submissions and rubrics. You will answer with a json and make sure the properly formatted and it has no syntax errors."
             },
             {
                 "role": "user",
@@ -102,7 +105,7 @@ def grade_exam(exam_id):
     for student_dict in students_json[0]["students"]:
         for student_id, answers in student_dict.items():
             # Print student['student_id'] and student_id
-            print(f"Processing student {student_id}")
+            # print(f"Processing student {student_id}")
             
             # Check if student is already graded
             doc_ref = db.collection('Graded').document(exam_id)
@@ -134,18 +137,16 @@ def grade_exam(exam_id):
                     question_number, student_question = next(((item['question_id'], item) for item in midterm_questions if item['text'] == question_id), (None, None))
                     if student_question and student_answer:
                         prompt = (
-                            "Below you have a question and an answer from a student. "
-                            "The question includes a set of rubrics and weights asigned to each rubric. "
+                            "Grade the answer from a student based on the given question and rubrics. "
+                            "The question includes a set of rubrics, and weights asigned to each rubric. "
                             "The answer includes both the question and the student's response. "
-                            "Grade the student's answer based on the rubrics and weights provided in the question. "
-                            "The output must be a json following this format, and using double quotes: "
-                            '{"question_id": <insert the Question here>, "rubric_scores": [<score1>, <score2>, ...], "total_score": <sum of all rubrics scores>, "feedback": <Constructive feedback based on the students answer and how it could be improved>}'
+                            "The output must be a json following this format using double quotes for keys: "
+                            '{"question_id": <insert the Question here>, "rubric_scores": [<score1>, <score2>, ...], "total_score": <sum of all rubrics scores>, "feedback": "<Constructive feedback based on the students answer and how it could be improved>"}'
                             "Add your graded scores per rubric in the rubric_scores list based on your best assessment."
                             "DO NOT DEVIATE FROM THIS FORMAT, DOING SO WILL HURT MY PROGRAM. Print everything in one line.\n\n"
-                            f"Question: {question_id}\n\n"
-                            f"Rubrics: {student_question['rubrics']}\n\n"
-                            f"Answer: {student_answer}\n\n"
-                            "Make sure the JSON is properly formatted and it has no syntax errors. Don't write code, just assess the student's answer."
+                            f"=============Question: {question_id}\n\n"
+                            f"=============Rubrics: {student_question['rubrics']}\n\n"
+                            f"=============Answer: {student_answer}\n\n"
                         )
                         graded_response = ask_gpt(prompt)
                         result_dict = json.loads(graded_response)
