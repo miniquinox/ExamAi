@@ -3,6 +3,7 @@ name: Execute Firebase Test
 on:
   repository_dispatch:
     types: [trigger-action]
+  workflow_dispatch:  # This enables manual triggering of the workflow
 
 jobs:
   run-python-script:
@@ -18,8 +19,16 @@ jobs:
 
       - name: Install dependencies
         run: |
+          echo $ANTHONY
           python -m pip install --upgrade pip
           pip install firebase-admin
 
-      - name: Run firebase_test.py
-        run: python firebase_test.py
+        env:
+          ANTHONY: ${{ secrets.ANTHONY }}  # Fetches ANTHONY from repository secrets
+
+      - name: Run grading.py
+        run: python grading.py
+        env:
+          ANTHONY: ${{ secrets.ANTHONY }}  # Fetches ANTHONY from repository secrets
+
+      
