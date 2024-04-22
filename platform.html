@@ -87,20 +87,23 @@
                 box.className = 'student-box';
                 box.innerHTML = '<h2 style="text-align: center;">Top 5 Students</h2>'; // Title for the box
 
+                console.log("Attempting to use Exam ID:", selectedExamId); // Debug log
+
                 if (selectedExamId) {
                     db.collection("Graded").doc(selectedExamId).get().then((doc) => {
                         if (doc.exists) {
                             let students = doc.data().students;
                             students.sort((a, b) => b.final_grade - a.final_grade);
-                            let table = document.createElement('table');
                             students.slice(0, 5).forEach((student) => {
-                                let row = table.insertRow();
-                                let cell1 = row.insertCell(0);
-                                cell1.innerHTML = `Student: ${student.student_id}`;
-                                let cell2 = row.insertCell(1);
-                                cell2.innerHTML = `Final Grade: ${student.final_grade}`;
+                                box.innerHTML += `
+                                    <table>
+                                        <tr>
+                                            <td style="width: 230px;">Student: ${student.student_id}</td>
+                                            <td>Final Grade: ${student.final_grade}</td>
+                                        </tr>
+                                    </table>
+                                `;
                             });
-                            box.appendChild(table); // Add the table to the box
 
                             callback(box); // Call the callback with the box as argument
                         } else {
@@ -439,61 +442,8 @@
             function createBox3_2() {
                 let box = document.createElement('div');
                 box.className = 'student-box';
-                box.innerHTML = '<h2 style="text-align: center;">Average Score per Question</h2><div id="averageScoresContainer"></div>';
-                
-                if (selectedExamId) {
-                    calculateAndDisplayQuestionAverages(box, selectedExamId);
-                } else {
-                    box.innerHTML += '<div>Please select a valid Exam ID.</div>';
-                }
+                box.innerHTML = '<div>Dummy data for box 3_2</div>';
                 return box;
-            }
-
-            function calculateAndDisplayQuestionAverages(box, examId) {
-                db.collection("Graded").doc(examId).get().then((doc) => {
-                    if (doc.exists) {
-                        let gradesArray = doc.data().grades;
-                        let scoreSums = {};
-                        let scoreCounts = {};
-
-                        gradesArray.forEach((grade, index) => {
-                            // Assuming 'rubric_scores' is an array of scores for each rubric item
-                            grade.rubric_scores.forEach((score, rubricIndex) => {
-                                let questionKey = `Q${index + 1}R${rubricIndex + 1}`; // e.g., Q1R1 for the first rubric item of the first question
-                                scoreSums[questionKey] = (scoreSums[questionKey] || 0) + score;
-                                scoreCounts[questionKey] = (scoreCounts[questionKey] || 0) + 1;
-                            });
-                        });
-
-                        let averageScores = {};
-                        Object.keys(scoreSums).forEach(questionKey => {
-                            averageScores[questionKey] = (scoreSums[questionKey] / scoreCounts[questionKey]).toFixed(2); // Calculate average and round to two decimal places
-                        });
-
-                        displayAverageScores(box, averageScores);
-                    } else {
-                        box.innerHTML += '<div>No data found for this exam ID.</div>';
-                    }
-                }).catch((error) => {
-                    console.error("Error getting documents:", error);
-                    box.innerHTML += '<div>Error retrieving data</div>';
-                });
-            }
-
-            function displayAverageScores(box, averages) {
-                const container = box.querySelector('#averageScoresContainer');
-                container.innerHTML = '';
-                Object.entries(averages).forEach(([questionKey, average]) => {
-                    container.innerHTML += `<div>${questionKey}: ${average}</div>`;
-                });
-            }
-
-            function displayAverageScores(box, averages) {
-                const container = document.getElementById('averageScoresContainer');
-                container.innerHTML = '';
-                averages.forEach((avg, index) => {
-                    container.innerHTML += `<div>Question ${index + 1}: ${avg}</div>`;
-                });
             }
 
             async function populateColumns(examContainer) {
@@ -810,15 +760,6 @@
             margin-left: 5px; /* Space between bar and label */
         }
         
-        .student-box {
-            overflow: auto; /* Add scrollbars when content overflows */
-            box-sizing: border-box; /* Include padding and border in the element's total dimensions */
-            padding: 10px; /* Ensure there's space inside the box */
-            margin-bottom: 20px; /* Consistent spacing between boxes */
-            width: 100%; /* Full width within its container */
-            max-height: 300px; /* Set a maximum height */
-        }
-
 
     </style>
 </head>
