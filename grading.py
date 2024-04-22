@@ -167,3 +167,4 @@ def grade_exam(exam_id):
     doc_ref.set(exam_results, merge=True)
 
 grade_exam("FirstMidTerm")
+print("Grading completed.")
