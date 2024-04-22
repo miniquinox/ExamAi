@@ -5,8 +5,7 @@ from firebase_admin import credentials, firestore
 import time
 import os
 
-ANTHONY = os.environ['ANTHONY']
-# Initialize Firebase Admin using the service account
+ANTHONY = os.environ.get('ANTHONY').replace('\\n', '\n')# Initialize Firebase Admin using the service account
 part1 = "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDTJyq9aT0aR24T\n6V/tk+7QC1nvxmLOKWDmJ8RDKTFYz86j"
 part_11 = "nhMEoiXQXH0ubWLU6wabaeTibqGOACz0\nfjK3Na7m3d1UCrqt/IXzhZ+TkJirSVzfEys6bxk0Y8cDcyLJrrj2PqesXSlzEx/y\nMvNoiCBph9wwDFEZQ4zI/1DcU"
 part_12 = "996zhk1Te0XlCuUfXIrm2a/kLraVS9cI2TWmPqH\nuJH7N7/ZnHzdc/XOL6tlWBHr11qZK3laMyHXExG2GvmBnJDXCr+UCbLnq5xDjEZ+\n3fKtbelmufdZQDqAuyqM6"
