@@ -3,6 +3,7 @@ name: Execute Firebase Test
 on:
   repository_dispatch:
     types: [trigger-action]
+  workflow_dispatch:  # This enables manual triggering of the workflow
 
 jobs:
   run-python-script:
