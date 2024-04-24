@@ -38,6 +38,23 @@
             --recording-line: #00ff00;  
         }
 
+        .dark-theme {
+            --app-background: #333333;
+            --background-dots: radial-gradient(#1100ff 0.8px, #333333 0.8px);
+            --main-box-background: #444444;
+            --first-boxes-border: #21e6c1;
+            --answer-box-gray: #99999973;
+            --answer-box-border: #00aaff;
+            --red-buttons: #e60000;
+            --green-buttons: #21e6c1;
+            --button-hover: #833ab4;
+            --app-title: #ffffffe0;
+            --app-title-gradient: linear-gradient(to right, #00fbff, hsl(272, 100%, 80%), rgb(247, 106, 247));
+            --monitoring-text: #ffffff;
+            --monitoring-background: #100e17a0;
+            --recording-line: #00ff00;  
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--app-background);
@@ -201,34 +218,89 @@
             width: auto;
             margin: 30px auto; /* Increased margin */
         }
+
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .switch {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Dark shadow for light theme */
+        }
+
+        .switch:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .switch {
+            background-color: #d89700b3;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Light shadow for dark theme */
+        }
+
+        input:checked + .switch:before {
+            transform: translateX(26px);
+        }
     </style>
 </head>
 <body>
     <div id="recording-indicator"></div>
 
     <div class="container">
-        
-        <style>
-            h1 {
-                font-size: 3.2em; /* Adjust as needed */
-            }
-        </style>
+        <div style="position: relative;">
+            <div class="theme-switch-wrapper" style="position: absolute; top: 0px; left: 10px; z-index: 999;">
+                <label for="darkmode-toggle" class="toggle-switch">
+                    <input type="checkbox" id="darkmode-toggle" />
+                    <span class="switch"></span>
+                </label>
+            </div>
+            <style>
+                h1 {
+                    font-size: 3.2em; /* Adjust as needed */
+                }
+            </style>
 
-        <h1><span class="light-gray">UC Davis</span> <span class="gradient">Exam Ai</span> <span class="light-gray">Platform</span></h1>
-        <div class="form-group">
-            <label for="examIdInput">Exam ID:</label>
-            <input type="text" id="examIdInput" placeholder="Enter Exam ID" required>
-        </div>
-        <div class="form-group">
-            <label for="studentIdInput">Student ID:</label>
-            <input type="text" id="studentIdInput" placeholder="Enter Student ID" required>
-        </div>
+            <h1><span class="light-gray">UC Davis</span> <span class="gradient">Exam Ai</span> <span class="light-gray">Platform</span></h1>
+            <div class="form-group">
+                <label for="examIdInput">Exam ID:</label>
+                <input type="text" id="examIdInput" placeholder="Enter Exam ID" required>
+            </div>
+            <div class="form-group">
+                <label for="studentIdInput">Student ID:</label>
+                <input type="text" id="studentIdInput" placeholder="Enter Student ID" required>
+            </div>
 
-        <div id="questionsContainer">
-            <!-- Questions will be added here dynamically -->
+            <div id="questionsContainer">
+                <!-- Questions will be added here dynamically -->
+            </div>
+            <button class="submit-btn red-toned" onclick="fetchQuestions()">Fetch Questions</button>
+            <button class="submit-btn red-toned" onclick="submitAnswers()">Submit Answers</button>
         </div>
-        <button class="submit-btn red-toned" onclick="fetchQuestions()">Fetch Questions</button>
-        <button class="submit-btn red-toned" onclick="submitAnswers()">Submit Answers</button>
     </div>
 
     <div class="camera-container">
@@ -349,6 +421,19 @@
             const buttons = document.querySelectorAll('.submit-btn');
             buttons.forEach(button => button.classList.remove('red-toned'));
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleSwitch = document.querySelector('#darkmode-toggle');
+            toggleSwitch.addEventListener('change', switchTheme, false);
+
+            function switchTheme(e) {
+                if (e.target.checked) {
+                    document.body.classList.add('dark-theme');
+                } else {
+                    document.body.classList.remove('dark-theme');
+                }
+            }
+        });
     </script>
 </body>
 </html>
