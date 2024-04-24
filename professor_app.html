@@ -20,28 +20,55 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
     </script>
-    <style>
+    <style>        
+        :root {
+            --app-background: #ffffff;
+            --app-title: #460069e0;
+            --background-dots: radial-gradient(#1100ff 0.8px, #ffffff 0.8px);
+            --main-box-background: #ffffff;
+            --first-boxes-color: #7500e3;
+            --first-boxes-font: #7500e3;
+            --input-text-color: #292929;
+            --buttons-color: #00ffc8;
+            --button-hover: #833ab4;
+            --light-gray: #f5f5f5; 
+            --question-background: #e6f7ff;
+            --question-font: #0079d6;
+            --rubric-background: #fff1e7;
+            --rubric-font: #d96d00;
+            --question-input-background: #f0f0f0;
+            --question-input-font: #000000;
+            --rubric-input-background: #f0f0f0;
+            --rubric-input-font: #000000;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1b1b2f; /* Darker background for higher contrast */
-            color: #c8c6c6;
+            background-color: var(--app-background);
+            opacity: 0.9;
+            background-image: var(--background-dots);
+            background-size: 16px 16px;
             margin: 0;
             padding: 0;
             line-height: 1.6;
         }
         .container {
-            max-width: 700px; /* Adjusted for better fit */
+            max-width: 900px; /* Adjusted for better fit */
             margin: 40px auto;
-            padding: 20px;
-            background-color: #100e17; /* Even darker shade for the container */
+            padding: 1px 20px 15px;
+            background-color: var(--main-box-background); /* Even darker shade for the container */
             border-radius: 8px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.3);
         }
         h1 {
-            color: #21e6c1; /* Bright neon color for headings */
+            color: var(--app-title); /* Bright neon color for headings */
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 10px;
+            font-size: 3.2em; /* Adjust this value to make the text bigger */
+            font-family: 'Roboto', sans-serif; /* Use Roboto font */
+            padding-top: 0; /* Remove top padding */
         }
+        
         .form-group {
             margin-bottom: 25px; /* Increased for better spacing */
         }
@@ -49,43 +76,43 @@
             display: block;
             margin-bottom: 10px;
             font-weight: 600;
-            color: #21e6c1; /* Neon color for labels */
+            color: var(--first-boxes-color); /* Neon color for labels */
         }
         input[type="text"],
         input[type="number"] {
             width: calc(100% - 20px); /* Adjusted width to fix fitting issue */
             padding: 10px;
-            margin-bottom: 10px;
             border-radius: 5px;
-            border: 2px solid #21e6c1; /* Neon borders */
+            border: 2px solid var(--first-boxes-color); /* Neon borders */
             background: transparent;
-            color: #fff;
+            color: var(--input-text-color); /* Dark text color */
         }
         button, .add-btn {
-            background-color: #21e6c1; /* Neon color for buttons */
+            background-color: var(--buttons-color); /* Neon color for buttons */
             border: 0;
             padding: 10px 20px;
-            color: #100e17; /* Dark text on neon for contrast */
+            color: var(--input-text-color); /* Dark text on neon for contrast */
             cursor: pointer;
             font-size: 16px;
-            margin-top: 20px; /* Increased margin */
             border-radius: 5px;
             transition: background-color 0.3s ease, color 0.3s ease;
             text-transform: uppercase; /* Styling choice for uppercase text */
         }
         
         button:hover, .add-btn:hover {
-            background-color: #833ab4; /* A purple color for hover */
-            color: #c8c6c6; /* Light color for text on hover */
+            background-color: var(--button-hover); /* A purple color for hover */
+            color: var(--light-gray); /* Light color for text on hover */
         }
         .question, .rubric {
             padding: 15px;
-            background-color: #162447; /* Subtle change for question and rubric backgrounds */
+            background-color: var(--question-background); /* Subtle change for question and rubric backgrounds */
+            border: 1px solid var(--question-font); /* Added border */
             border-radius: 5px;
             margin-bottom: 15px; /* Increased margin */
         }
         .rubric {
-            background-color: #1f4068; /* Slightly different color for rubrics */
+            background-color: var(--rubric-background); /* Slightly different color for rubrics */
+            border: 1px solid var(--rubric-font); /* Added border */
             margin-left: 20px;
             margin-top: 10px;
         }
@@ -106,15 +133,15 @@
     <div class="container">
         <h1>Enter Exam Details</h1>
         <div class="form-group">
-            <label for="professorId">Professor ID:</label>
+            <label for="professorId" style="color: var(--first-boxes-font); margin: 0px 0 5px;">Professor ID:</label>
             <input type="text" id="professorId" placeholder="Enter Professor ID">
         </div>
         <div class="form-group">
-            <label for="courseName">Course Name:</label>
+            <label for="courseName" style="color: var(--first-boxes-font); margin: 0px 0 5px;">Course Name:</label>
             <input type="text" id="courseName" placeholder="Enter Course Name">
         </div>
         <div class="form-group">
-            <label for="examId">Exam ID:</label>
+            <label for="examId" style="color: var(--first-boxes-font); margin: 0px 0 5px;">Exam ID:</label>
             <input type="text" id="examId" placeholder="Enter Exam ID">
         </div>
 
@@ -134,14 +161,14 @@
             const container = document.createElement('div');
             container.className = 'question';
             container.innerHTML = `
-                <label>Question ${questionCount} Text:</label>
-                <textarea class="questionText" placeholder="Enter question text" style="width: 100%; height: 100px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; resize: vertical; background-color: #1f4068; color: #fff;"></textarea>
-                <label>Question ${questionCount} Weight:</label>
-                <input type="number" class="questionWeight" placeholder="Enter question weight" style="width: 100%; padding: 12px 20px; margin: 8px 0; box-sizing: border-box; background-color: #1f4068; color: #fff;">
+                <label style="color: var(--question-font); margin: 0px 0 5px;">Question ${questionCount} Text:</label>
+                <textarea class="questionText" placeholder=" Enter question text" style="width: 100%; height: 100px; border: 2px solid var(--question-font); border-radius: 4px; box-sizing: border-box; resize: vertical; background-color: var(--question-input-background); color: var(--question-input-font);"></textarea>
+                <label style="color: var(--question-font); margin: 10px 0 5px;">Question ${questionCount} Weight:</label>
+                <input type="number" class="questionWeight" placeholder="Enter question weight" style="width: 100%; padding: 12px 20px; margin: 0; box-sizing: border-box; border: 2px solid var(--question-font); background-color: var(--question-input-background); color: var(--question-input-font);">
                 <div class="rubricsContainer">
                 </div>
-                <span class="add-btn" onclick="addRubric(this.previousElementSibling)">+ Add Rubric</span>
-            `;
+                <span class="add-btn" onclick="addRubric(this.previousElementSibling)" style="margin-top: 10px;">+ Add Rubric</span>
+                `;
             document.getElementById('questionsContainer').appendChild(container);
         }
 
@@ -149,11 +176,11 @@
             const rubric = document.createElement('div');
             rubric.className = 'rubric';
             rubric.innerHTML = `
-                <label>Rubric Description:</label>
-                <input type="text" class="rubricDescription" placeholder="Enter rubric description">
-                <label>Partial Weight:</label>
-                <input type="number" class="rubricWeight" placeholder="Enter partial weight">
-            `;
+                <label style="color: var(--rubric-font); margin: 0px 0 5px;">Rubric Description:</label>
+                <input type="text" class="rubricDescription" placeholder="Enter rubric description" style="background-color: var(--rubric-input-background); color: var(--rubric-input-font); border: 2px solid var(--rubric-font);">
+                <label style="color: var(--rubric-font); margin: 10px 0 5px;">Partial Weight:</label>
+                <input type="number" class="rubricWeight" placeholder="Enter partial weight" style="background-color: var(--rubric-input-background); color: var(--rubric-input-font); border: 2px solid var(--rubric-font);">
+                `;
             rubricsContainer.appendChild(rubric);
         }
 
