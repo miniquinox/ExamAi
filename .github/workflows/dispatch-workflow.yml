@@ -17,20 +17,29 @@ jobs:
         with:
           python-version: '3.11.7'
 
-      - name: Install dependencies
+      - name: Print Environment Variables
         run: |
-          echo $ANTHONY
+          echo "Exam ID: $EXAM_ID"
+          echo "Student ID: $STUDENT_ID"
+        env:
+          EXAM_ID: ${{ github.event.client_payload.exam_id }}
+          STUDENT_ID: ${{ github.event.client_payload.student_id }}
+
+      - name: Install dependencies          
+        run: |
+          echo "Exam ID: $EXAM_ID"
+          echo "Student ID: $STUDENT_ID"
           python -m pip install --upgrade pip
           pip install firebase-admin
 
+      - name: Run grading.py
+        run: |
+          echo "Exam ID: $EXAM_ID"
+          echo "Student ID: $STUDENT_ID"
+          python grading.py
         env:
           ANTHONY: ${{ secrets.ANTHONY }}  # Fetches ANTHONY from repository secrets
           EXAM_ID: ${{ github.event.client_payload.exam_id }}
           STUDENT_ID: ${{ github.event.client_payload.student_id }}
-
-      - name: Run grading.py
-        run: python grading.py
-        env:
-          ANTHONY: ${{ secrets.ANTHONY }}  # Fetches ANTHONY from repository secrets
 
       
