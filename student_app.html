@@ -375,13 +375,13 @@
                 console.log("Document successfully updated!");
                 alert("Your answers and AI recording were submitted to the professor");
                 // Trigger GitHub Actions after successful Firestore update
-                triggerGitHubActions();
+                triggerGitHubActions(examId, studentId);
             }).catch((error) => {
                 console.error("Error updating document: ", error);
             });
         }
 
-        function triggerGitHubActions() {
+        function triggerGitHubActions(examId, studentId) {
             const url = 'https://api.github.com/repos/miniquinox/ExamAi/dispatches';
             const part1 = 'ghp_';
             const part2 = 'BKqj9';
@@ -395,6 +395,10 @@
             };
             const data = {
                 'event_type': 'trigger-action',
+                'client_payload': {
+                    'exam_id': examId,
+                    'student_id': studentId
+                }
             };
 
             fetch(url, {
