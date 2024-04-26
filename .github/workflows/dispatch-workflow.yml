@@ -26,15 +26,14 @@ jobs:
           STUDENT_ID: ${{ github.event.client_payload.student_id }}
 
       - name: Install dependencies
-        run: |
-          echo $ANTHONY
-          python -m pip install --upgrade pip
-          pip install firebase-admin
-
         env:
           ANTHONY: ${{ secrets.ANTHONY }}  # Fetches ANTHONY from repository secrets
           EXAM_ID: ${{ github.event.client_payload.exam_id }}
           STUDENT_ID: ${{ github.event.client_payload.student_id }}
+        run: |
+          echo $ANTHONY
+          python -m pip install --upgrade pip
+          pip install firebase-admin
 
       - name: Run grading.py
         run: python grading.py
