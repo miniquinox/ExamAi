@@ -25,6 +25,8 @@ jobs:
 
         env:
           ANTHONY: ${{ secrets.ANTHONY }}  # Fetches ANTHONY from repository secrets
+          EXAM_ID: ${{ github.event.client_payload.exam_id }}
+          STUDENT_ID: ${{ github.event.client_payload.student_id }}
 
       - name: Run grading.py
         run: python grading.py
