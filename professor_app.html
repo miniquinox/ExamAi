@@ -200,7 +200,6 @@
 </head>
 <body>
     <div class="container">
-        
         <div style="position: relative;">
             <div class="theme-switch-wrapper" style="position: absolute; top: 0px; left: 10px; z-index: 999;">
                 <label for="darkmode-toggle" class="toggle-switch">
@@ -220,6 +219,10 @@
             <div class="form-group">
                 <label for="examId" style="color: var(--first-boxes-font); margin: 0px 0 5px;">Exam ID:</label>
                 <input type="text" id="examId" placeholder="Enter Exam ID">
+            </div>
+            <div class="form-group">
+                <label for="gradingPassword" style="color: var(--first-boxes-font); margin: 0px 0 5px;">Grading Password:</label>
+                <input type="text" id="gradingPassword" placeholder="Grading Password">
             </div>
 
             <div id="questionsContainer">
@@ -246,26 +249,41 @@
                 <div class="rubricsContainer">
                 </div>
                 <span class="add-btn" onclick="addRubric(this.previousElementSibling)" style="margin-top: 10px;">+ Add Rubric</span>
+                <button class="remove-btn" onclick="removeQuestion(this.parentNode)" style="background-color: red; color: white; margin-top: 10px;">Remove Question</button>
                 `;
             document.getElementById('questionsContainer').appendChild(container);
+        }
+
+        function removeQuestion(questionElement) {
+            questionElement.parentNode.removeChild(questionElement);
         }
 
         function addRubric(rubricsContainer) {
             const rubric = document.createElement('div');
             rubric.className = 'rubric';
             rubric.innerHTML = `
-                <label style="color: var(--rubric-font); margin: 0px 0 5px;">Rubric Description:</label>
-                <input type="text" class="rubricDescription" placeholder="Enter rubric description" style="background-color: var(--rubric-input-background); color: var(--rubric-input-font); border: 2px solid var(--rubric-font);">
+                <div style="display: flex; align-items: center; justify-content: flex-start;">
+                    <label style="color: var(--rubric-font); margin: 0px 0 5px; white-space: nowrap;">Rubric Description:</label>
+                    <div style="display: flex; justify-content: flex-end; width: 100%;">
+                        <button onclick="removeRubric(this.parentNode.parentNode.parentNode)" style="background-color: red; color: white; padding: 2px 8px;">Remove Rubric</button>
+                    </div>
+                </div>
+                <input type="text" class="rubricDescription" placeholder="Enter rubric description" style="width: 97%; background-color: var(--rubric-input-background); color: var(--rubric-input-font); border: 2px solid var(--rubric-font);">
                 <label style="color: var(--rubric-font); margin: 10px 0 5px;">Partial Weight:</label>
-                <input type="number" class="rubricWeight" placeholder="Enter partial weight" style="background-color: var(--rubric-input-background); color: var(--rubric-input-font); border: 2px solid var(--rubric-font);">
-                `;
+                <input type="number" class="rubricWeight" placeholder="Enter partial weight" style="width: 97%; background-color: var(--rubric-input-background); color: var(--rubric-input-font); border: 2px solid var(--rubric-font);">
+            `;
             rubricsContainer.appendChild(rubric);
+        }
+
+        function removeRubric(rubricElement) {
+            rubricElement.remove();
         }
 
         function submitForm() {
             const professor_id = document.getElementById('professorId').value.trim();
             const courseName = document.getElementById('courseName').value.trim();
             const exam_id = document.getElementById('examId').value.trim();
+            const grading_password = document.getElementById('gradingPassword').value.trim();
             const examData = {
                 questions: []
             };
@@ -294,6 +312,7 @@
             db.collection("Professor").doc("Courses").update({
                 [courseName]: {
                     professor_id: professor_id,
+                    grading_password: grading_password,
                     exams: {
                         [exam_id]: examData
                     }
