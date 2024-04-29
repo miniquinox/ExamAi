@@ -82,6 +82,61 @@
                 return chartContainer;
             }
 
+            function createBox1_2_1() {
+                let box = document.createElement('div');
+                box.className = 'student-box';
+                box.style.width = '150px'; // Set the width of the box
+
+                box.innerHTML = `
+                    <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%;">
+                            <div style="display: flex; justify-content: center; align-items: center; text-align: center; margin-bottom: 0px;">
+                                <h2 style="font-size: 20px; padding-top: 0px;">Average<br>Class Score</h2>
+                            </div>
+                            <div style="width: 100px; height: 100px;">
+                                <canvas id="averageScoreChart" class="small-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                `; // Title and canvas for the chart
+                console.log("Attempting to use Exam ID:", selectedExamId); // Debug log
+
+                if (selectedExamId) {
+                    db.collection("Graded").doc(selectedExamId).get().then((doc) => {
+                        if (doc.exists) {
+                            let students = doc.data().students;
+                            let totalScore = 0;
+                            students.forEach(student => {
+                                totalScore += student.final_grade;
+                            });
+                            let averageScore = totalScore / students.length;
+                            let chartPercentage = averageScore.toFixed(2); // Convert average to a percentage for the pie chart
+                            drawChart(chartPercentage);
+                        } else {
+                            box.innerHTML += '<div>No data found</div>';
+                        }
+                    }).catch((error) => {
+                        console.error("Error getting documents:", error);
+                        box.innerHTML += '<div>Error retrieving data</div>';
+                    });
+                } else {
+                    box.innerHTML += '<div>Please select a valid Exam ID.</div>';
+                }
+                return box;
+            }
+
+            function createBox1_2_2() {
+                let box = document.createElement('div');
+                box.className = 'student-box';
+                box.style.width = '150px'; // Set the width of the box
+                box.style.paddingTop = '0px'; // Add padding from the top
+
+                box.innerHTML = `
+                    <spline-viewer url="https://prod.spline.design/VSKxlz2bCqAr5sO3/scene.splinecode"></spline-viewer>
+                `;
+                return box;
+            }
+
             function createBox1_1(callback) {
                 let box = document.createElement('div');
                 box.className = 'student-box';
@@ -266,7 +321,9 @@
             function createBox2_2() {
                 let box = document.createElement('div');
                 box.className = 'student-box';
-                box.innerHTML = '<div>Dummy data for box 2_2</div>';
+                box.innerHTML = `
+                    <div>Dummy data for box 2_2</div>
+                `;
                 return box;
             }
 
@@ -465,7 +522,16 @@
                         if (columnIndex === 0 && i === 0) { // If it's the first box of the first column
                             box = await new Promise(resolve => createBox1_1(resolve));
                         } else if (columnIndex === 0 && i === 1) { // If it's the second box of the first column
-                            box = createBox1_2();
+                            let boxContainer = document.createElement('div');
+                            boxContainer.style.display = 'flex';
+                            let box1 = createBox1_2_1();
+                            let box2 = createBox1_2_2();
+                            box1.style.marginRight = '20px'; // Add a margin to the right of box1
+                            box1.style.height = '200px'; // Set the height of box2
+                            box2.style.height = '200px'; // Set the height of box2
+                            boxContainer.appendChild(box1);
+                            boxContainer.appendChild(box2);
+                            box = boxContainer;
                         } else if (columnIndex === 1 && i === 0) { // If it's the first box of the second column
                             box = createBox2_1();
                         } else if (columnIndex === 1 && i === 1) { // If it's the second box of the second column
@@ -509,12 +575,19 @@
         });
 
     </script>
+
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.1.9/build/spline-viewer.js"></script>
+
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" integrity="sha384-vp86vTRFVJgpjF9jiT9ODllV9BG2sIb6bTy0FgRDpNI6Vib8xDUI8ble25BLpp2j" crossorigin="anonymous">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            box-sizing: border-box;
             background-image: url('https://images6.alphacoders.com/125/1257448.jpg');
             background-size: cover;
             background-attachment: fixed;
@@ -526,11 +599,15 @@
             padding: 40px 20px; /* Increase vertical padding */
             min-height: 750px; /* Add a minimum height */
             min-width: auto; /* Ensure no minimum width is set */
-            margin: 40px auto 0 auto; /* Remove bottom margin */
+            margin-top: 40px; /* Adjust the top margin as necessary */
+            margin-bottom: 40px; /* Adjust the bottom margin as necessary */
+            margin-left: 100px;
+            margin-right: auto;
             max-width: 1300px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             color: #484848;
             overflow: hidden;
+
         }
 
         @media (max-width: 768px) {
@@ -766,23 +843,106 @@
             color: #fff;
             margin-left: 5px; /* Space between bar and label */
         }
-        
 
+        .menu {
+            width: 60px; /* Width of the menu */
+            position: absolute; /* Allows you to position the menu relative to the nearest positioned ancestor */
+            left: 20px; /* Distance from the left edge of the viewport */
+            top: 50%; /* Positions the menu at the middle of the viewport */
+            transform: translateY(-50%); /* Offset by half the height of the menu to center it vertically */
+            border-radius: 30px; /* Pill shape */
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column; /* Aligns the buttons vertically */
+            justify-content: center;
+            align-items: center;
+            gap: 20px; /* Spacing between buttons */
+            padding: 10px 0; /* Padding on top and bottom inside the menu */
+            z-index: 1000; /* Ensures the menu is above other elements */
+        }
+
+        .menu-button {
+            border: none; /* Removes the border */
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out; /* Smooth transition for transform and filter changes */
+            filter: brightness(1); /* Initial brightness */
+            padding: 30px; /* Adds space around the content */
+        }
+
+        .menu-button:hover {
+            transform: scale(1.1); /* Makes the icon 20% larger when hovered over */
+            filter: brightness(1.5); /* Makes the icon 50% brighter when hovered over */
+        }
+
+        .menu-button.professor-icon {
+            background-image: url('https://img.icons8.com/ios/50/teacher.png');
+            background-size: 45px 45px;
+            border-radius: 10px; /* Adjust this value as needed */
+        }
+
+        .menu-button.student-icon {
+            background-image: url('https://img.icons8.com/dotty/80/student-male.png');
+            background-size: 50px 50px;
+            border-radius: 10px; /* Adjust this value as needed */
+        }
+
+        .menu-button.public-icon {
+            background-image: url('https://img.icons8.com/ios/50/system-task--v1.png');
+            background-size: 45px 45px;
+            border-radius: 10px; /* Adjust this value as needed */
+        }
+
+        .page-container {
+            position: relative; /* Establishes a positioning context for absolute positioning */
+            padding-left: 100px; /* Space for the menu */
+            box-sizing: border-box; /* Ensures padding is included in total width */
+        }
+
+        .menu {
+            position: absolute; /* Positioned relative to the .page-container */
+            left: 20px; /* Space from the left edge of the .page-container */
+            top: 50%;
+            transform: translateY(-50%); /* Center the menu vertically */
+            width: 60px; /* Width of the menu */
+            border-radius: 30px; /* Pill shape */
+            background: rgba(76, 76, 76, 0.5); /* Make the background darker */
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 10px 0;
+            z-index: 1000; /* Ensures the menu is above other elements */
+        }
     </style>
 </head>
 <body>
-    <div class="frosted-card">
-        <div class="title-bar">
-            <h1 style="color: white; font-size: 4em; font-weight: bold;">Grade college exams in seconds</h1>
-            <h2 style="background: linear-gradient(to right, #f0b80f, #d1d1d1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 3em;">powered by <span>ExamAi</span></h2>
-            <p style="color: lightgray; font-size: 1.5em;">Search your exam ID right below, without having to sign up!</p>
+    
+    <div class="page-container"> <!-- Relative positioning context for the menu -->
+        <div class="menu" style="backdrop-filter: blur(10px); background: rgba(76, 76, 76, 0.5); border-radius: 15px; padding: 10px; margin: 80px;">
+            <!-- Rounded buttons with icons -->
+            <button class="menu-button professor-icon"></button>
+            <button class="menu-button student-icon"></button>
+            <a href="platform.html">
+                <button class="menu-button public-icon"></button>
+            </a>
         </div>
-        <div class="topbar">
-            <input type="search" id="searchInput" placeholder="Search Exam IDs" class="glow">
-        </div>
-        <div class="content">
-            <div id="searchResults">
-                <!-- Options will be dynamically added here -->
+        <div class="frosted-card">
+            <div class="title-bar">
+                <h1 style="color: white; font-size: 4em; font-weight: bold;">Grade college exams in seconds</h1>
+                <h2 style="background: linear-gradient(to right, #f0b80f, #d1d1d1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 3em;">powered by <span>ExamAi</span></h2>
+                <p style="color: lightgray; font-size: 1.5em;">Search your exam ID right below, without having to sign up!</p>
+            </div>
+            <div class="topbar">
+                <input type="search" id="searchInput" placeholder="Search Exam IDs" class="glow">
+            </div>
+            <div class="content">
+                <div id="searchResults">
+                    <!-- Options will be dynamically added here -->
+                </div>
             </div>
         </div>
     </div>
