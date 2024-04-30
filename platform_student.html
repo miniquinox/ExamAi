@@ -282,7 +282,12 @@
                     event.preventDefault();
                     selectedExamId = doc.id; // Save the selected exam_id
                     searchInput.value = doc.id; // Set the search input value to the selected exam_id
-                    console.log("Selected Exam ID:", selectedExamId); // Debug log
+
+                    let titleBar = document.querySelector('.title-bar');
+                    if (titleBar) { // Check if title-bar exists
+                        titleBar.remove(); // Remove the title-bar
+                    }
+
                     displayResults(doc); // Ensure this is called after setting the ID
                 });
                 return anchor;
