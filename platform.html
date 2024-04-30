@@ -304,11 +304,12 @@
     
         <div class="page-container"> <!-- Relative positioning context for the menu -->
             <div class="menu">
-                <!-- Rounded buttons with icons -->
                 <a href="platform_professor.html">
                     <button class="menu-button professor-icon"></button>
                 </a>
-                <button class="menu-button student-icon"></button>
+                <a href="platform_student.html">
+                    <button class="menu-button student-icon"></button>
+                </a>
                 <a href="platform.html">
                     <button class="menu-button public-icon"></button>
                 </a>
@@ -463,8 +464,7 @@
                 // ICONS FOUND IN https://iconscout.com/
                 let box = document.createElement('div');
                 box.className = 'student-box';
-                box.innerHTML = '<h2 style="text-align: center;">Top 5 Students</h2>'; // Title for the box
-
+                box.innerHTML = '<h2 style="text-align: center; margin: 0; padding-top: 10px; padding-bottom: 15px;">Top 5 Students</h2>'; // Title for the box
                 console.log("Attempting to use Exam ID:", selectedExamId); // Debug log
 
                 if (selectedExamId) {

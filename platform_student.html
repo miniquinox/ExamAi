@@ -18,7 +18,10 @@
             --background-dots: radial-gradient(#1100ff 0.8px, #ffffff 0.8px);
             --main-box: rgba(47, 47, 47, 0.858);
             --title-box: #100e174f;
+            --bento-boxes: rgba(0, 0, 0, 0.237);
             --bento-text: #ffffff;
+            --bento-border: rgba(122, 122, 122, 0.457);
+            --bento-hover: rgba(255, 255, 255, 0.2);
             --search-bar-border: #dcc464;
             --search-bar-glow1: #ffffff;
             --search-bar-glow2: #ffa200;
@@ -138,6 +141,7 @@
             background-color: var(--search-result-hover); /* Slightly darker on hover */
         }
 
+
         .menu {
             width: 60px; /* Width of the menu */
             position: absolute; /* Allows you to position the menu relative to the nearest positioned ancestor */
@@ -217,60 +221,6 @@
             margin: 0; /* Removes any margin which might be affecting positioning */
         }
 
-        /* Container to make the table scrollable */
-        .scrollable-table-container {
-            width: 80vw;  /* Adjust width as needed */
-            height: 50vh;  /* Adjust height as needed */
-            overflow: auto;  /* Enables scrollbars if content overflows */
-            margin-top: 20px;  /* Adds space above the table container */
-            position: relative; /* Add this line */
-        }
-
-        .scrollable-table-container::after {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 50px; /* Adjust as needed */
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--main-box)); /* Adjust colors as needed */
-        }
-
-        /* Styles for the table */
-        table {
-            width: 100%;  /* Ensures table uses the full width of the container */
-            border-collapse: collapse;  /* Collapses borders between table cells */
-            background-color: var(--app-background); /* Background color from root variable */
-        }
-
-        /* Styles for table headers */
-        th {
-            background-color: var(--title-box);  /* Background color for headers */
-            color: var(--bento-text);  /* Text color for headers */
-            padding: 12px 10px;  /* Padding inside header cells */
-            text-align: left;  /* Aligns text to the left */
-            font-size: 1.1em;  /* Slightly larger font size for headers */
-            border-bottom: 2px solid var(--bento-border);  /* Bottom border for header row */
-        }
-
-        /* General styles for table cells */
-        td {
-            padding: 10px;  /* Padding inside cells */
-            text-align: left;  /* Aligns text to the left */
-            border-bottom: 1px solid var(--bento-border);  /* Light border for rows, no vertical borders */
-        }
-
-        /* Alternating row colors */
-        tr:nth-child(odd) {
-            background-color: rgba(47, 47, 47, 0.858);  /* White background for odd rows */
-        }
-
-        tr:nth-child(even) {
-            background-color: rgba(56, 56, 56, 0.858);  /* Light grey background for even rows */
-        }
-
-
-
     </style>
     
     <body>
@@ -321,7 +271,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');
             const searchResults = document.getElementById('searchResults');
-            let selectedExamId = null;
+            let selectedExamId = null; // Variable to store the selected exam_id
 
             function createAnchor(doc) {
                 let anchor = document.createElement('a');
@@ -330,71 +280,21 @@
                 anchor.className = 'search-result';
                 anchor.addEventListener('click', function(event) {
                     event.preventDefault();
-                    selectedExamId = doc.id;
-                    displayResults(selectedExamId);
+                    selectedExamId = doc.id; // Save the selected exam_id
+                    console.log("Selected Exam ID:", selectedExamId); // Debug log
+                    displayResults(doc); // Ensure this is called after setting the ID
                 });
                 return anchor;
             }
 
-            function displayResults(examId) {
-                db.collection("Graded").doc(examId).get().then((doc) => {
-                    if (doc.exists) {
-                        const examData = doc.data();
-                        renderScoreTable(examData);
-                    } else {
-                        searchResults.innerHTML = '<p>No data found for this exam.</p>';
-                    }
-                }).catch(error => {
-                    console.error("Error getting document:", error);
-                    searchResults.innerHTML = '<p>Error retrieving exam data.</p>';
-                });
-            }
-
-            function renderScoreTable(examData) {
-                const container = document.createElement('div');
-                container.className = 'scrollable-table-container';
-
-                const table = document.createElement('table');
-                table.style.width = '100%';
-                table.style.color = 'white';
-                table.setAttribute('border', '1');
-
-                // Create header row with question numbers
-                const thead = document.createElement('thead');
-                const headerRow = document.createElement('tr');
-                headerRow.innerHTML = '<th>Student ID</th><th>Final Grade</th>'; // Add Final Grade header
-
-                // Assume each student has the same set of questions
-                if (examData.students.length > 0) {
-                    examData.students[0].grades.forEach(grade => {
-                        const th = document.createElement('th');
-                        th.textContent = grade.question_number;
-                        headerRow.appendChild(th);
-                    });
-                }
-                thead.appendChild(headerRow);
-                table.appendChild(thead);
-
-                // Create rows for each student
-                const tbody = document.createElement('tbody');
-                examData.students.forEach(student => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `<td>${student.student_id}</td><td>${student.final_grade}</td>`; // Add Final Grade data
-
-                    student.grades.forEach(grade => {
-                        const cell = document.createElement('td');
-                        cell.textContent = grade.total_score;
-                        row.appendChild(cell);
-                    });
-                    tbody.appendChild(row);
-                });
-                table.appendChild(tbody);
-
-                container.appendChild(table);
+            function displayResults(doc) {
                 searchResults.innerHTML = '';
-                searchResults.appendChild(container);
-            }
-
+                const examContainer = createExamContainer();
+                const examData = doc.data();
+                const boxes = createStudentBoxes(examData);
+                populateColumns(examContainer, boxes);
+                searchResults.appendChild(examContainer);
+            }       
 
             searchInput.addEventListener('input', function(event) {
                 const searchTerm = event.target.value.trim();
@@ -413,8 +313,6 @@
                 }
             });
         });
-
-
 
     </script>
 
