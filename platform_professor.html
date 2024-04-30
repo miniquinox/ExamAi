@@ -319,22 +319,67 @@
                     event.preventDefault();
                     selectedExamId = doc.id; // Save the selected exam_id
                     document.getElementById('searchInput').value = doc.id; // Set the search input value to the selected exam_id
-
-                    let titleBar = document.querySelector('.title-bar');
-                    if (titleBar) { // Check if title-bar exists
-                        titleBar.remove(); // Remove the title-bar
-                    }
-
-                    displayResults(selectedExamId); // Ensure this is called after setting the ID
+                    requestPassword(doc.id); // Call to request password with doc.id
                 });
                 return anchor;
             }
 
-            function displayResults(examId) {
-                db.collection("Graded").doc(examId).get().then((doc) => {
+            function requestPassword(courseId) {
+                let passwordPrompt = prompt("Please enter your password:");
+                if (passwordPrompt) {
+                    verifyPassword(courseId, passwordPrompt);
+                }
+            }
+
+            function verifyPassword(examId, inputPassword) {
+                db.collection("Professor").doc("Courses").get().then((doc) => {
+                    if (doc.exists) {
+                        const coursesData = doc.data();
+                        let passwordFound = false;
+
+                        // Loop through all courses to find the exam and its password
+                        for (let courseId in coursesData) {
+                            const course = coursesData[courseId];
+
+                            if (course.exams && course.exams[examId]) {
+                                const exam = course.exams[examId];
+
+                                // Check if grading_password exists for the exam
+                                if (course.grading_password) {
+                                    const gradingPassword = course.grading_password;
+
+                                    if (gradingPassword === inputPassword) {
+                                        displayResults(examId); // Presumably handles displaying the appropriate data
+                                        passwordFound = true;
+                                        break;
+                                    } else {
+                                        alert("Incorrect password.");
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (!passwordFound) {
+                            alert("Exam information not found or no password set.");
+                        }
+                    } else {
+                        alert("Courses information not found.");
+                    }
+                }).catch(error => {
+                    searchResults.innerHTML = '<p>Error retrieving courses data.</p>';
+                });
+            }
+
+            function displayResults(courseId) {
+                db.collection("Graded").doc(courseId).get().then((doc) => {
                     if (doc.exists) {
                         const examData = doc.data();
                         renderScoreTable(examData);
+                        let titleBar = document.querySelector('.title-bar');
+                        if (titleBar) {
+                            titleBar.remove(); // Remove the title-bar
+                        }
                     } else {
                         searchResults.innerHTML = '<p>No data found for this exam.</p>';
                     }
