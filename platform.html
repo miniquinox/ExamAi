@@ -10,6 +10,323 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <style>
+
+        :root {
+            /* Light theme colors */
+            --app-background: #ffffff;
+            --background-dots: radial-gradient(#1100ff 0.8px, #ffffff 0.8px);
+            --main-box: rgba(76, 76, 76, 0.5);
+            --title-box: #100e174f;
+            --bento-boxes: rgba(0, 0, 0, 0.237);
+            --bento-text: #ffffff;
+            --bento-border: rgba(122, 122, 122, 0.457);
+            --bento-hover: rgba(255, 255, 255, 0.2);
+            --search-bar-border: #dcc464;
+            --search-bar-glow1: #ffffff;
+            --search-bar-glow2: #ffa200;
+            --search-bar-glow3: #5b5b5b;
+            --search-result: rgba(255, 255, 255, 0.1);
+            --search-result-hover: rgba(255, 255, 255, 0.2);
+        }
+
+        .dark-theme {
+            /* Dark theme colors */
+            
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            box-sizing: border-box;
+            background-color: var(--app-background);
+            opacity: 0.9;
+            background-image: var(--background-dots);
+            background-size: 16px 16px;
+            background-attachment: fixed;
+        }
+
+        .frosted-card {
+            backdrop-filter: blur(10px);
+            background: var(--main-box); /* Make the background darker */
+            border-radius: 20px;
+            padding: 40px 20px; /* Increase vertical padding */
+            height: 80vh; /* Set height to 80% of the viewport height */
+            width: 80vw; /* Set width to 80% of the viewport width */
+            margin: 40px auto; /* Center the card horizontally */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0 20px; /* Add horizontal padding */
+            }
+            .frosted-card {
+                margin: 20px 0 0 0; /* Add 20px margin to the top, no margin to the bottom */
+            }
+        }
+        .title-bar {
+            text-align: center;
+            padding: 20px;
+            background-color: var(--title-box);
+            border-radius: 20px;
+        }
+
+        .exam-container {
+            display: flex;
+            justify-content: space-between; /* Adjust space between columns */
+            align-items: stretch; /* Stretch columns vertically */
+            height: 100%; /* Full height */
+            padding: 0 10px; /* Padding inside the container to the sides */
+            margin: 20px 0; /* Margin on top and bottom */
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Space between boxes */
+            flex: 1; /* Equal width */
+            padding: 0 10px; /* Padding inside each column */
+            margin: 0; /* No additional margin for columns */
+        }
+
+        .column > :last-child {
+            margin-bottom: 0;
+        }
+
+        /* Boxes within the columns */
+        .student-box, .empty-box {
+            margin-bottom: 0px; /* Space between boxes */
+            margin-right: 0; /* Remove margin-right if any */
+            margin-left: 0; /* Remove margin-left if any */
+            flex-grow: 1; /* Grow to fill column */
+            background: var(--bento-boxes);
+            border-radius: 10px;
+            color: var(--bento-text);
+            text-align: left;
+            margin-bottom: 20px; /* Space between boxes */
+            padding: 0 20px;
+            flex-grow: 1; /* Boxes will grow equally to fill the column */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Align the content to the top */
+            border: 2px solid var(--bento-border); /* Add a white border */
+        }
+
+        .student-box:hover {
+            backdrop-filter: blur(5px);
+            background-color: var(--bento-hover);
+        }
+
+
+        .title-bar h1, .title-bar h2, .title-bar p {
+            margin: 0;
+        }
+
+        .topbar {
+            padding: 10px 20px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .glow {
+            outline: none;
+            border: none;
+            animation: glow 1s linear infinite;
+        }
+
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 5px var(--search-bar-glow1), 0 0 10px var(--search-bar-glow2), 0 0 15px var(--search-bar-glow3);
+            }
+            33% {
+                box-shadow: 0 0 5px var(--search-bar-glow3), 0 0 10px var(--search-bar-glow1), 0 0 15px var(--search-bar-glow2);
+            }
+            66% {
+                box-shadow: 0 0 5px var(--search-bar-glow2), 0 0 10px var(--search-bar-glow3), 0 0 15px var(--search-bar-glow1);
+            }
+            100% {
+                box-shadow: 0 0 5px var(--search-bar-glow1), 0 0 10px var(--search-bar-glow2), 0 0 15px var(--search-bar-glow3);
+            }
+        }
+
+        .height-2-1 {
+            height: 200px; /* Adjust this value to your preference */
+        }
+
+        .height-2-2 {
+            height: 200px; /* Adjust this value to your preference */
+        }
+
+        .height-3-1 {
+            height: 120px; /* Adjust this value to your preference */
+        }
+
+        .height-3-2 {
+            height: 120px; /* Adjust this value to your preference */
+        }
+
+        .height-3-3 {
+            height: 120px; /* Adjust this value to your preference */
+        }
+
+        input[type="search"] {
+            width: 300px;
+            padding: 10px;
+            border-radius: 15px;
+            border: 2px solid var(--search-bar-border);
+            background: transparent;
+            color: var(--bento-text);
+            outline: none;
+            margin-top: 20px; /* Add space between the search bar and the top element */
+        }
+
+        input[type="search"]::placeholder {
+            color: var(--bento-text);
+        }
+
+        .search-result {
+            /* Updated styles for search results */
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: var(--search-result); /* Fallback for browsers that do not support backdrop-filter */
+            color: var(--bento-text);
+            text-align: center;
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+        }
+
+        .search-result:hover {
+            backdrop-filter: blur(5px);
+            background-color: var(--search-result-hover); /* Slightly darker on hover */
+        }
+
+        .bar-container {
+            display: flex; /* Use flexbox to arrange bars side by side */
+            justify-content: space-around; /* Evenly space the bars */
+            align-items: flex-end; /* Align bars to the bottom */
+            width: 100%; /* Full width of the container */
+            height: 3800px; /* Fixed height for the bars */
+            margin: 10px 0; /* Spacing between bar containers */
+            background: #52303010; /* Semi-transparent white background */
+            border-radius: 5px;
+            padding: 5px 0; /* Padding to ensure bars don't touch the edges */
+        }
+
+        .menu {
+            width: 60px; /* Width of the menu */
+            position: absolute; /* Allows you to position the menu relative to the nearest positioned ancestor */
+            left: 20px; /* Distance from the left edge of the viewport */
+            top: 50%; /* Positions the menu at the middle of the viewport */
+            transform: translateY(-50%); /* Offset by half the height of the menu to center it vertically */
+            border-radius: 30px; /* Pill shape */
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column; /* Aligns the buttons vertically */
+            justify-content: center;
+            align-items: center;
+            gap: 20px; /* Spacing between buttons */
+            padding: 10px 0; /* Padding on top and bottom inside the menu */
+            z-index: 1000; /* Ensures the menu is above other elements */
+        }
+
+        .menu-button {
+            border: none; /* Removes the border */
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out; /* Smooth transition for transform and filter changes */
+            filter: brightness(1); /* Initial brightness */
+            padding: 30px; /* Adds space around the content */
+        }
+
+        .menu-button:hover {
+            transform: scale(1.1); /* Makes the icon 20% larger when hovered over */
+            filter: brightness(1.5); /* Makes the icon 50% brighter when hovered over */
+        }
+
+        .menu-button.professor-icon {
+            background-image: url('https://img.icons8.com/ios/50/teacher.png');
+            background-size: 45px 45px;
+            border-radius: 10px; /* Adjust this value as needed */
+        }
+
+        .menu-button.student-icon {
+            background-image: url('https://img.icons8.com/dotty/80/student-male.png');
+            background-size: 50px 50px;
+            border-radius: 10px; /* Adjust this value as needed */
+        }
+
+        .menu-button.public-icon {
+            background-image: url('https://img.icons8.com/ios/50/system-task--v1.png');
+            background-size: 45px 45px;
+            border-radius: 10px; /* Adjust this value as needed */
+        }
+
+        .page-container {
+            position: relative; /* Establishes a positioning context for absolute positioning */
+            width: 100%; /* Ensures the container spans the entire width of its parent */
+            min-height: 100vh; /* Minimum height to cover the viewport height */
+            overflow: hidden; /* Ensures no overflow from the child elements */
+        }
+
+        .menu {
+            position: absolute; /* Absolute positioning within the page-container */
+            left: 4%; /* Set left to 10% of the total width of the viewport */
+            top: 50%; /* Center the menu vertically */
+            transform: translateY(-50%); /* Offset to center vertically */
+            width: 60px; /* Width of the menu */
+            border-radius: 15px; /* Rounded corners for the menu */
+            backdrop-filter: blur(10px); /* Blur effect for the background */
+            background: rgba(76, 76, 76, 0.5); /* Semi-transparent background */
+            display: flex;
+            flex-direction: column; /* Stack children elements (buttons) vertically */
+            justify-content: center; /* Center children along the vertical axis */
+            align-items: center; /* Center children horizontally */
+            gap: 20px; /* Space between buttons */
+            padding: 10px; /* Padding inside the menu */
+            z-index: 1000; /* Ensures the menu is above other page elements */
+            margin: 0; /* Removes any margin which might be affecting positioning */
+        }
+
+    </style>
+    
+    <body>
+    
+        <div class="page-container"> <!-- Relative positioning context for the menu -->
+            <div class="menu">
+                <!-- Rounded buttons with icons -->
+                <button class="menu-button professor-icon"></button>
+                <button class="menu-button student-icon"></button>
+                <a href="platform.html">
+                    <button class="menu-button public-icon"></button>
+                </a>
+            </div>
+            <div class="frosted-card">
+                <div class="title-bar">
+                    <h1 style="color: white; font-size: 4em; font-weight: bold;">Grade college exams in seconds</h1>
+                    <h2 style="background: linear-gradient(to right, #f0b80f, #d1d1d1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 3em;">powered by <span>ExamAi</span></h2>
+                    <p style="color: lightgray; font-size: 1.5em;">Search your exam ID right below, without having to sign up!</p>
+                </div>
+                <div class="topbar">
+                    <input type="search" id="searchInput" placeholder="Search Exam IDs" class="glow">
+                </div>
+                <div class="content">
+                    <div id="searchResults">
+                        <!-- Options will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </body>
+    
     <script>
         const firebaseConfig = {
             authDomain: "examai-0228.firebaseapp.com",
@@ -128,7 +445,7 @@
             function createBox1_2_2() {
                 let box = document.createElement('div');
                 box.className = 'student-box';
-                box.style.width = '150px'; // Set the width of the box
+                box.style.width = '250px'; // Set the width of the box
                 box.style.paddingTop = '0px'; // Add padding from the top
 
                 box.innerHTML = `
@@ -138,6 +455,7 @@
             }
 
             function createBox1_1(callback) {
+                // ICONS FOUND IN https://iconscout.com/
                 let box = document.createElement('div');
                 box.className = 'student-box';
                 box.innerHTML = '<h2 style="text-align: center;">Top 5 Students</h2>'; // Title for the box
@@ -149,12 +467,21 @@
                         if (doc.exists) {
                             let students = doc.data().students;
                             students.sort((a, b) => b.final_grade - a.final_grade);
-                            students.slice(0, 5).forEach((student) => {
+                            students.slice(0, 5).forEach((student, index) => {
                                 box.innerHTML += `
                                     <table>
                                         <tr>
-                                            <td style="width: 230px;">Student: ${student.student_id}</td>
-                                            <td>Final Grade: ${student.final_grade}</td>
+                                            <td style="width: 230px;">
+                                                <img src="achievement${index + 1}.svg" style="height: 25px; border-radius: 50%; margin-right: 10px;" />
+                                                ${student.student_id}
+                                            </td>
+                                            <td>
+                                                <div style="width: 100%; background-color: #f3f3f3; border-radius: 25px;">
+                                                    <div style="width: ${student.final_grade}%; background-color: #325cff; text-align: right; padding-right: 10px; border-radius: 25px; font-size: 0.9em;">
+                                                        ${student.final_grade}%
+                                                    </div>
+                                                </div>
+                                            </td>
                                         </tr>
                                     </table>
                                 `;
@@ -285,36 +612,9 @@
             function createBox2_1() {
                 let box = document.createElement('div');
                 box.className = 'student-box';
-                box.innerHTML = '<h2 style="text-align: center;">Bottom 2 Students</h2>'; // Title for the box
-
-                console.log("Attempting to use Exam ID:", selectedExamId); // Debug log
-
-                if (selectedExamId) {
-                    db.collection("Graded").doc(selectedExamId).get().then((doc) => {
-                        if (doc.exists) {
-                            let students = doc.data().students;
-                            students.sort((a, b) => a.final_grade - b.final_grade); // Sort students by final grade in ascending order
-                            students.slice(0, 2).forEach((student) => {
-                                box.innerHTML += `
-                                    <table>
-                                        <tr>
-                                            <td style="width: 230px;">Student: ${student.student_id}</td>
-                                            <td>Final Grade: ${student.final_grade}</td>
-                                        </tr>
-                                    </table>
-                                `;
-                                // box.innerHTML += `<div>Student: ${student.student_id}, Final Grade: ${student.final_grade}</div>`;
-                            });
-                        } else {
-                            box.innerHTML += '<div>No data found</div>';
-                        }
-                    }).catch((error) => {
-                        console.error("Error getting documents:", error);
-                        box.innerHTML += '<div>Error retrieving data</div>';
-                    });
-                } else {
-                    box.innerHTML += '<div>Please select a valid Exam ID.</div>';
-                }
+                box.innerHTML = `
+                    <div>Dummy data for box 2_2</div>
+                `;
                 return box;
             }
 
@@ -579,372 +879,7 @@
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.1.9/build/spline-viewer.js"></script>
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" integrity="sha384-vp86vTRFVJgpjF9jiT9ODllV9BG2sIb6bTy0FgRDpNI6Vib8xDUI8ble25BLpp2j" crossorigin="anonymous">
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            align-items: center;
-            display: flex;
-            justify-content: center;
-            box-sizing: border-box;
-            background-image: url('https://images6.alphacoders.com/125/1257448.jpg');
-            background-size: cover;
-            background-attachment: fixed;
-        }
-        .frosted-card {
-            backdrop-filter: blur(10px);
-            background: rgba(76, 76, 76, 0.5); /* Make the background darker */
-            border-radius: 20px;
-            padding: 40px 20px; /* Increase vertical padding */
-            min-height: 750px; /* Add a minimum height */
-            min-width: auto; /* Ensure no minimum width is set */
-            margin-top: 40px; /* Adjust the top margin as necessary */
-            margin-bottom: 40px; /* Adjust the bottom margin as necessary */
-            margin-left: 100px;
-            margin-right: auto;
-            max-width: 1300px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            color: #484848;
-            overflow: hidden;
-
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 0 20px; /* Add horizontal padding */
-            }
-            .frosted-card {
-                margin: 20px 0 0 0; /* Add 20px margin to the top, no margin to the bottom */
-            }
-        }
-        .title-bar {
-            text-align: center;
-            padding: 20px;
-            background-color: #100e174f;
-            border-radius: 20px;
-        }
-
-        .exam-container {
-            display: flex;
-            justify-content: space-between; /* Adjust space between columns */
-            align-items: stretch; /* Stretch columns vertically */
-            height: 100%; /* Full height */
-            padding: 0 10px; /* Padding inside the container to the sides */
-            margin: 20px 0; /* Margin on top and bottom */
-        }
-
-        .column {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between; /* Space between boxes */
-            flex: 1; /* Equal width */
-            padding: 0 10px; /* Padding inside each column */
-            margin: 0; /* No additional margin for columns */
-        }
-
-        .column > :last-child {
-            margin-bottom: 0;
-        }
-
-        /* Boxes within the columns */
-        .student-box, .empty-box {
-            margin-bottom: 0px; /* Space between boxes */
-            margin-right: 0; /* Remove margin-right if any */
-            margin-left: 0; /* Remove margin-left if any */
-            flex-grow: 1; /* Grow to fill column */
-            background: rgba(0, 0, 0, 0.237);
-            border-radius: 10px;
-            color: white;
-            text-align: left;
-            margin-bottom: 20px; /* Space between boxes */
-            padding: 0 20px;
-            flex-grow: 1; /* Boxes will grow equally to fill the column */
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start; /* Align the content to the top */
-            border: 2px solid rgba(122, 122, 122, 0.457); /* Add a white border */
-        }
-
-        .student-box:hover {
-            backdrop-filter: blur(5px);
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-
-
-        .title-bar h1 {
-            color: white;
-            margin: 0;
-        }
-
-        .title-bar h2 {
-            color: purple;
-            margin: 0;
-        }
-
-        .title-bar h2 span {
-            color: #800080;
-        }
-
-        .title-bar p {
-            color: lightgray;
-            margin: 0;
-        }
-
-        .topbar {
-            padding: 10px 20px;
-            /* background-color: #100e174f; */
-            display: flex;
-            justify-content: center;
-        }
-        .glow {
-            outline: none;
-            border: none;
-            animation: glow 1s linear infinite;
-        }
-
-        @keyframes glow {
-            0% {
-                box-shadow: 0 0 5px #ffffff, 0 0 10px #ffa200, 0 0 15px #5b5b5b;
-            }
-            33% {
-                box-shadow: 0 0 5px #5b5b5b, 0 0 10px #ffffff, 0 0 15px #ffa200;
-            }
-            66% {
-                box-shadow: 0 0 5px #ffa200, 0 0 10px #5b5b5b, 0 0 15px #ffffff;
-            }
-            100% {
-                box-shadow: 0 0 5px #ffffff, 0 0 10px #ffa200, 0 0 15px #5b5b5b;
-            }
-        }
-
-        .height-2-1 {
-            height: 200px; /* Adjust this value to your preference */
-        }
-
-        .height-2-2 {
-            height: 200px; /* Adjust this value to your preference */
-        }
-
-        .height-3-1 {
-            height: 120px; /* Adjust this value to your preference */
-        }
-
-        .height-3-2 {
-            height: 120px; /* Adjust this value to your preference */
-        }
-
-        .height-3-3 {
-            height: 120px; /* Adjust this value to your preference */
-        }
-
-        input[type="search"] {
-            width: 300px;
-            padding: 10px;
-            border-radius: 15px;
-            border: 2px solid #dcc464;
-            background: transparent;
-            color: #fff;
-            outline: none;
-            margin-top: 20px; /* Add space between the search bar and the top element */
-        }
-
-        input[type="search"]::placeholder {
-            color: rgb(255, 255, 255);
-        }
-
-        select {
-            width: 100%;
-            padding: 5px 10px;
-            border-radius: 5px;
-            background-color: #1b1b2f;
-            color: #21e6c1;
-            border: 1px solid #21e6c1;
-        }
-
-        .search-result {
-            /* Updated styles for search results */
-            margin-bottom: 10px;
-            border-radius: 5px;
-            background-color: rgba(255, 255, 255, 0.1); /* Fallback for browsers that do not support backdrop-filter */
-            color: #fff;
-            text-align: center;
-            display: block;
-            padding: 10px;
-            text-decoration: none;
-        }
-
-        .search-result:hover {
-            backdrop-filter: blur(5px);
-            background-color: rgba(255, 255, 255, 0.2); /* Slightly darker on hover */
-        }
-        
-        .pie-chart {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            position: relative;
-            margin: 20px auto;
-            background: conic-gradient(#23afe3 0%, #23afe3 var(--percent), #e0e0e0 var(--percent), #e0e0e0 100%);
-        }
-
-        .pie-chart .percent {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 20px;
-            color: #333;
-        }
-
-        .bar-container {
-            display: flex; /* Use flexbox to arrange bars side by side */
-            justify-content: space-around; /* Evenly space the bars */
-            align-items: flex-end; /* Align bars to the bottom */
-            width: 100%; /* Full width of the container */
-            height: 300px; /* Fixed height for the bars */
-            margin: 10px 0; /* Spacing between bar containers */
-            background: #ffffff10; /* Semi-transparent white background */
-            border-radius: 5px;
-            padding: 5px 0; /* Padding to ensure bars don't touch the edges */
-        }
-
-        .bar {
-            height: 90%; /* Make the bars stretch to most of the container height */
-            background-color: #23afe3;
-            width: 15px; /* Fixed width for each bar */
-            border-radius: 3px;
-            transition: all 0.6s ease;
-        }
-
-        .bar-label {
-            color: #fff;
-            font-size: 12px;
-            text-align: center;
-            margin-top: 5px; /* Space between the bar and the label */
-        }
-
-        .bar-container-horizontal {
-            display: flex; /* Horizontal layout */
-            justify-content: start; /* Align bars to the start */
-            align-items: center; /* Center bars vertically */
-            margin-top: 10px; /* Space between bars */
-        }
-
-        .bar-horizontal {
-            height: 20px; /* Fixed height for each bar */
-            background-color: #23afe3;
-            border-radius: 3px;
-            transition: width 0.6s ease; /* Animate width changes */
-            cursor: pointer; /* Pointer cursor on hover */
-        }
-
-        .bar-label-horizontal {
-            color: #fff;
-            margin-left: 5px; /* Space between bar and label */
-        }
-
-        .menu {
-            width: 60px; /* Width of the menu */
-            position: absolute; /* Allows you to position the menu relative to the nearest positioned ancestor */
-            left: 20px; /* Distance from the left edge of the viewport */
-            top: 50%; /* Positions the menu at the middle of the viewport */
-            transform: translateY(-50%); /* Offset by half the height of the menu to center it vertically */
-            border-radius: 30px; /* Pill shape */
-            backdrop-filter: blur(5px);
-            display: flex;
-            flex-direction: column; /* Aligns the buttons vertically */
-            justify-content: center;
-            align-items: center;
-            gap: 20px; /* Spacing between buttons */
-            padding: 10px 0; /* Padding on top and bottom inside the menu */
-            z-index: 1000; /* Ensures the menu is above other elements */
-        }
-
-        .menu-button {
-            border: none; /* Removes the border */
-            background-repeat: no-repeat;
-            background-position: center;
-            cursor: pointer;
-            transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out; /* Smooth transition for transform and filter changes */
-            filter: brightness(1); /* Initial brightness */
-            padding: 30px; /* Adds space around the content */
-        }
-
-        .menu-button:hover {
-            transform: scale(1.1); /* Makes the icon 20% larger when hovered over */
-            filter: brightness(1.5); /* Makes the icon 50% brighter when hovered over */
-        }
-
-        .menu-button.professor-icon {
-            background-image: url('https://img.icons8.com/ios/50/teacher.png');
-            background-size: 45px 45px;
-            border-radius: 10px; /* Adjust this value as needed */
-        }
-
-        .menu-button.student-icon {
-            background-image: url('https://img.icons8.com/dotty/80/student-male.png');
-            background-size: 50px 50px;
-            border-radius: 10px; /* Adjust this value as needed */
-        }
-
-        .menu-button.public-icon {
-            background-image: url('https://img.icons8.com/ios/50/system-task--v1.png');
-            background-size: 45px 45px;
-            border-radius: 10px; /* Adjust this value as needed */
-        }
-
-        .page-container {
-            position: relative; /* Establishes a positioning context for absolute positioning */
-            padding-left: 100px; /* Space for the menu */
-            box-sizing: border-box; /* Ensures padding is included in total width */
-        }
-
-        .menu {
-            position: absolute; /* Positioned relative to the .page-container */
-            left: 20px; /* Space from the left edge of the .page-container */
-            top: 50%;
-            transform: translateY(-50%); /* Center the menu vertically */
-            width: 60px; /* Width of the menu */
-            border-radius: 30px; /* Pill shape */
-            background: rgba(76, 76, 76, 0.5); /* Make the background darker */
-            backdrop-filter: blur(5px);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            padding: 10px 0;
-            z-index: 1000; /* Ensures the menu is above other elements */
-        }
-    </style>
-</head>
-<body>
     
-    <div class="page-container"> <!-- Relative positioning context for the menu -->
-        <div class="menu" style="backdrop-filter: blur(10px); background: rgba(76, 76, 76, 0.5); border-radius: 15px; padding: 10px; margin: 80px;">
-            <!-- Rounded buttons with icons -->
-            <button class="menu-button professor-icon"></button>
-            <button class="menu-button student-icon"></button>
-            <a href="platform.html">
-                <button class="menu-button public-icon"></button>
-            </a>
-        </div>
-        <div class="frosted-card">
-            <div class="title-bar">
-                <h1 style="color: white; font-size: 4em; font-weight: bold;">Grade college exams in seconds</h1>
-                <h2 style="background: linear-gradient(to right, #f0b80f, #d1d1d1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 3em;">powered by <span>ExamAi</span></h2>
-                <p style="color: lightgray; font-size: 1.5em;">Search your exam ID right below, without having to sign up!</p>
-            </div>
-            <div class="topbar">
-                <input type="search" id="searchInput" placeholder="Search Exam IDs" class="glow">
-            </div>
-            <div class="content">
-                <div id="searchResults">
-                    <!-- Options will be dynamically added here -->
-                </div>
-            </div>
-        </div>
-    </div>
-</body>
+</head>
+
 </html>
