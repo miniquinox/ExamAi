@@ -358,6 +358,7 @@
                 anchor.addEventListener('click', function(event) {
                     event.preventDefault();
                     selectedExamId = doc.id; // Save the selected exam_id
+                    searchInput.value = doc.id; // Set the search input value to the selected exam_id
                     console.log("Selected Exam ID:", selectedExamId); // Debug log
                     displayResults(doc); // Ensure this is called after setting the ID
                 });

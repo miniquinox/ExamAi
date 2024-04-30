@@ -223,17 +223,6 @@
             height: 50vh;  /* Adjust height as needed */
             overflow: auto;  /* Enables scrollbars if content overflows */
             margin-top: 20px;  /* Adds space above the table container */
-            position: relative; /* Add this line */
-        }
-
-        .scrollable-table-container::after {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 50px; /* Adjust as needed */
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--main-box)); /* Adjust colors as needed */
         }
 
         /* Styles for the table */
@@ -277,12 +266,9 @@
     
         <div class="page-container"> <!-- Relative positioning context for the menu -->
             <div class="menu">
-                <a href="platform_professor.html">
-                    <button class="menu-button professor-icon"></button>
-                </a>
-                <a href="platform_student.html">
-                    <button class="menu-button student-icon"></button>
-                </a>
+                <!-- Rounded buttons with icons -->
+                <button class="menu-button professor-icon"></button>
+                <button class="menu-button student-icon"></button>
                 <a href="platform.html">
                     <button class="menu-button public-icon"></button>
                 </a>
@@ -330,8 +316,9 @@
                 anchor.className = 'search-result';
                 anchor.addEventListener('click', function(event) {
                     event.preventDefault();
-                    selectedExamId = doc.id;
-                    displayResults(selectedExamId);
+                    selectedExamId = doc.id; // Save the selected exam_id
+                    document.getElementById('searchInput').value = doc.id; // Set the search input value to the selected exam_id
+                    displayResults(selectedExamId); // Ensure this is called after setting the ID
                 });
                 return anchor;
             }

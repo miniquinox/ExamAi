@@ -15,7 +15,7 @@
         :root {
             /* Light theme colors */
             --app-background: #ffffff;
-            --background-dots: radial-gradient(#1100ff 0.8px, #ffffff 0.8px);
+            --background-dots: radial-gradient(#27c300 0.8px, #ffffff 0.8px);
             --main-box: rgba(47, 47, 47, 0.858);
             --title-box: #100e174f;
             --bento-boxes: rgba(0, 0, 0, 0.237);
@@ -281,6 +281,7 @@
                 anchor.addEventListener('click', function(event) {
                     event.preventDefault();
                     selectedExamId = doc.id; // Save the selected exam_id
+                    searchInput.value = doc.id; // Set the search input value to the selected exam_id
                     console.log("Selected Exam ID:", selectedExamId); // Debug log
                     displayResults(doc); // Ensure this is called after setting the ID
                 });
