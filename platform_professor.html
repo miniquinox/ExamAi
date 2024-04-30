@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professor's Exam Visualization Portal</title>
+    <!-- Firebase Libraries -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+
+        :root {
+            /* Light theme colors */
+            --app-background: #ffffff;
+            --background-dots: radial-gradient(#1100ff 0.8px, #ffffff 0.8px);
+            --main-box: rgba(47, 47, 47, 0.858);
+            --title-box: #100e174f;
+            --bento-boxes: rgba(0, 0, 0, 0.237);
+            --bento-text: #ffffff;
+            --bento-border: rgba(122, 122, 122, 0.457);
+            --bento-hover: rgba(255, 255, 255, 0.2);
+            --search-bar-border: #dcc464;
+            --search-bar-glow1: #ffffff;
+            --search-bar-glow2: #ffa200;
+            --search-bar-glow3: #5b5b5b;
+            --search-result: rgba(255, 255, 255, 0.1);
+            --search-result-hover: rgba(255, 255, 255, 0.2);
+        }
+
+        .dark-theme {
+            /* Dark theme colors */
+            
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            box-sizing: border-box;
+            background-color: var(--app-background);
+            opacity: 0.99;
+            background-image: var(--background-dots);
+            background-size: 16px 16px;
+            background-attachment: fixed;
+        }
+
+        .frosted-card {
+            backdrop-filter: blur(10px);
+            background: var(--main-box); /* Make the background darker */
+            border-radius: 20px;
+            padding: 40px 20px; /* Increase vertical padding */
+            height: 80vh; /* Set height to 80% of the viewport height */
+            width: 80vw; /* Set width to 80% of the viewport width */
+            margin: 40px auto; /* Center the card horizontally */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0 20px; /* Add horizontal padding */
+            }
+            .frosted-card {
+                margin: 20px 0 0 0; /* Add 20px margin to the top, no margin to the bottom */
+            }
+        }
+
+        .title-bar {
+            text-align: center;
+            padding: 20px;
+            background-color: var(--title-box);
+            border-radius: 20px;
+        }
+
+        .title-bar h1, .title-bar h2, .title-bar p {
+            margin: 0;
+        }
+
+        .topbar {
+            padding: 10px 20px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .glow {
+            outline: none;
+            border: none;
+            animation: glow 1s linear infinite;
+        }
+
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 5px var(--search-bar-glow1), 0 0 10px var(--search-bar-glow2), 0 0 15px var(--search-bar-glow3);
+            }
+            33% {
+                box-shadow: 0 0 5px var(--search-bar-glow3), 0 0 10px var(--search-bar-glow1), 0 0 15px var(--search-bar-glow2);
+            }
+            66% {
+                box-shadow: 0 0 5px var(--search-bar-glow2), 0 0 10px var(--search-bar-glow3), 0 0 15px var(--search-bar-glow1);
+            }
+            100% {
+                box-shadow: 0 0 5px var(--search-bar-glow1), 0 0 10px var(--search-bar-glow2), 0 0 15px var(--search-bar-glow3);
+            }
+        }
+
+        input[type="search"] {
+            width: 300px;
+            padding: 10px;
+            border-radius: 15px;
+            border: 2px solid var(--search-bar-border);
+            background: transparent;
+            color: var(--bento-text);
+            outline: none;
+            margin-top: 20px; /* Add space between the search bar and the top element */
+        }
+
+        input[type="search"]::placeholder {
+            color: var(--bento-text);
+        }
+
+        .search-result {
+            /* Updated styles for search results */
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: var(--search-result); /* Fallback for browsers that do not support backdrop-filter */
+            color: var(--bento-text);
+            text-align: center;
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+        }
+
+        .search-result:hover {
+            backdrop-filter: blur(5px);
+            background-color: var(--search-result-hover); /* Slightly darker on hover */
+        }
+
+        .menu {
+            width: 60px; /* Width of the menu */
+            position: absolute; /* Allows you to position the menu relative to the nearest positioned ancestor */
+            left: 20px; /* Distance from the left edge of the viewport */
+            top: 50%; /* Positions the menu at the middle of the viewport */
+            transform: translateY(-50%); /* Offset by half the height of the menu to center it vertically */
+            border-radius: 30px; /* Pill shape */
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column; /* Aligns the buttons vertically */
+            justify-content: center;
+            align-items: center;
+            gap: 20px; /* Spacing between buttons */
+            padding: 10px 0; /* Padding on top and bottom inside the menu */
+            z-index: 1000; /* Ensures the menu is above other elements */
+        }
+
+        .menu-button {
+            border: none; /* Removes the border */
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out; /* Smooth transition for transform and filter changes */
+            filter: brightness(1); /* Initial brightness */
+            padding: 30px; /* Adds space around the content */
+        }
+
+        .menu-button:hover {
+            transform: scale(1.1); /* Makes the icon 20% larger when hovered over */
+            filter: brightness(1.5); /* Makes the icon 50% brighter when hovered over */
+        }
+
+        .menu-button.professor-icon {
+            background-image: url('https://img.icons8.com/ios/50/teacher.png');
+            background-size: 45px 45px;
+            border-radius: 10px; /* Adjust this value as needed */
+        }
+
+        .menu-button.student-icon {
+            background-image: url('https://img.icons8.com/dotty/80/student-male.png');
+            background-size: 50px 50px;
+            border-radius: 10px; /* Adjust this value as needed */
+        }
+
+        .menu-button.public-icon {
+            background-image: url('https://img.icons8.com/ios/50/system-task--v1.png');
+            background-size: 45px 45px;
+            border-radius: 10px; /* Adjust this value as needed */
+        }
+
+        .page-container {
+            position: relative; /* Establishes a positioning context for absolute positioning */
+            width: 100%; /* Ensures the container spans the entire width of its parent */
+            min-height: 100vh; /* Minimum height to cover the viewport height */
+            overflow: hidden; /* Ensures no overflow from the child elements */
+            display: flex; /* Makes the container a flex container */
+            justify-content: center; /* Centers child elements horizontally */
+            align-items: center; /* Centers child elements vertically */
+        }
+
+        .menu {
+            position: absolute; /* Absolute positioning within the page-container */
+            left: 4%; /* Set left to 10% of the total width of the viewport */
+            top: 50%; /* Center the menu vertically */
+            transform: translateY(-50%); /* Offset to center vertically */
+            width: 60px; /* Width of the menu */
+            border-radius: 15px; /* Rounded corners for the menu */
+            backdrop-filter: blur(10px); /* Blur effect for the background */
+            background: rgba(76, 76, 76, 0.5); /* Semi-transparent background */
+            display: flex;
+            flex-direction: column; /* Stack children elements (buttons) vertically */
+            justify-content: center; /* Center children along the vertical axis */
+            align-items: center; /* Center children horizontally */
+            gap: 20px; /* Space between buttons */
+            padding: 10px; /* Padding inside the menu */
+            z-index: 1000; /* Ensures the menu is above other page elements */
+            margin: 0; /* Removes any margin which might be affecting positioning */
+        }
+
+    </style>
+    
+    <body>
+    
+        <div class="page-container"> <!-- Relative positioning context for the menu -->
+            <div class="menu">
+                <!-- Rounded buttons with icons -->
+                <button class="menu-button professor-icon"></button>
+                <button class="menu-button student-icon"></button>
+                <a href="platform.html">
+                    <button class="menu-button public-icon"></button>
+                </a>
+            </div>
+            <div class="frosted-card">
+                <div class="title-bar">
+                    <h1 style="color: white; font-size: 4em; font-weight: bold;">Grade college exams in seconds</h1>
+                    <h2 style="background: linear-gradient(to right, #f0b80f, #d1d1d1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 3em;">powered by <span>ExamAi</span></h2>
+                    <p style="color: lightgray; font-size: 1.5em;">Search your exam ID right below, without having to sign up!</p>
+                </div>
+                <div class="topbar">
+                    <input type="search" id="searchInput" placeholder="Search Exam IDs" class="glow">
+                </div>
+                <div class="content">
+                    <div id="searchResults">
+                        <!-- Options will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </body>
+    
+    <script>
+        const firebaseConfig = {
+            authDomain: "examai-0228.firebaseapp.com",
+            projectId: "examai-0228",
+            storageBucket: "examai-0228.appspot.com",
+            messagingSenderId: "105408726183895905662"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            let selectedExamId = null; // Variable to store the selected exam_id
+
+            function createAnchor(doc) {
+                let anchor = document.createElement('a');
+                anchor.textContent = doc.id;
+                anchor.href = '#';
+                anchor.className = 'search-result';
+                anchor.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    selectedExamId = doc.id; // Save the selected exam_id
+                    console.log("Selected Exam ID:", selectedExamId); // Debug log
+                    displayResults(doc); // Ensure this is called after setting the ID
+                });
+                return anchor;
+            }
+
+            function displayResults(doc) {
+                searchResults.innerHTML = '';
+                const examContainer = createExamContainer();
+                const examData = doc.data();
+                const boxes = createStudentBoxes(examData);
+                populateColumns(examContainer, boxes);
+                searchResults.appendChild(examContainer);
+            }       
+
+            searchInput.addEventListener('input', function(event) {
+                const searchTerm = event.target.value.trim();
+                if (searchTerm.length > 0) {
+                    db.collection("Graded").where("exam_id", ">=", searchTerm)
+                        .where("exam_id", "<=", searchTerm + '\uf8ff')
+                        .get()
+                        .then(querySnapshot => {
+                            searchResults.innerHTML = '';
+                            querySnapshot.forEach(doc => {
+                                searchResults.appendChild(createAnchor(doc));
+                            });
+                        }).catch(error => console.log("Error getting documents: ", error));
+                } else {
+                    searchResults.innerHTML = '';
+                }
+            });
+        });
+
+    </script>
+
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.1.9/build/spline-viewer.js"></script>
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" integrity="sha384-vp86vTRFVJgpjF9jiT9ODllV9BG2sIb6bTy0FgRDpNI6Vib8xDUI8ble25BLpp2j" crossorigin="anonymous">
+    
+</head>
+
+</html>
