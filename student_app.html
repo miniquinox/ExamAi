@@ -13,13 +13,14 @@
             projectId: "examai-0228",
             storageBucket: "examai-0228.appspot.com",
             messagingSenderId: "105408726183895905662",
-            };
+        };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
     </script>
     <style>
+        /* Existing styles... */
         
         :root {
             --app-background: #ffffff;
@@ -219,7 +220,6 @@
             margin: 30px auto; /* Increased margin */
         }
 
-
         .toggle-switch {
             position: relative;
             display: inline-block;
@@ -266,6 +266,26 @@
         input:checked + .switch:before {
             transform: translateX(26px);
         }
+
+        #timer-container {
+            position: fixed;
+            top: 170px; /* Below the camera container */
+            right: 10px;
+            width: 200px;
+            height: 100px;
+            background-color: #100e17a0;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px var(--monitoring-background);
+            text-align: center;
+            padding: 10px;
+            display: none; /* Initially hidden */
+        }
+
+        #timer {
+            font-size: 1.5em;
+            color: var(--monitoring-text);
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -309,6 +329,10 @@
         <button class="submit-btn red-toned" onclick="enterFullscreen()">Enter Fullscreen</button>
     </div>
 
+    <div id="timer-container">
+        <div id="timer">Time Remaining: 30:00</div> <!-- Timer display -->
+    </div>
+
     <script>
         const video = document.getElementById('video');
 
@@ -319,6 +343,9 @@
             .catch((err) => {
                 console.error("Error accessing media devices.", err);
             });
+
+        let timerStarted = false;
+        let timerInterval;
 
         function fetchQuestions() {
             const examId = document.getElementById('examIdInput').value.trim();
@@ -347,6 +374,11 @@
                             });
                         }
                     }
+                    if (!timerStarted) {
+                        startTimer(60 * 30); // Start a 30-minute timer
+                        timerStarted = true;
+                    }
+                    document.getElementById('timer-container').style.display = 'block'; // Show the timer container
                 } else {
                     console.log('No such document!');
                 }
@@ -438,6 +470,28 @@
                 }
             }
         });
+
+        // Timer Functionality
+        function startTimer(duration) {
+            const timerDisplay = document.getElementById('timer');
+            let timer = duration, minutes, seconds;
+            clearInterval(timerInterval); // Clear any existing interval
+            timerInterval = setInterval(() => {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                timerDisplay.textContent = `Time Remaining: ${minutes}:${seconds}`;
+
+                if (--timer < 0) {
+                    clearInterval(timerInterval);
+                    timerDisplay.textContent = "Time's up!";
+                    alert("Time is up! Please submit your answers.");
+                }
+            }, 1000);
+        }
     </script>
 </body>
 </html>

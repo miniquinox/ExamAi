@@ -622,17 +622,112 @@
                 });
             }
 
-
             function createBox2_1() {
-                let box = document.createElement('div');
-                box.className = 'student-box';
-                box.innerHTML = `
-                    <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                        Dummy data for box 2_1
+            let box = document.createElement('div');
+            box.className = 'student-box';
+            box.innerHTML = `
+                <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                    <div style="display: flex; flex-direction: column; justify-content: center; height: 100%; text-align: center; margin-right: 40px;">
+                        <h2 style="margin: 0;">Highest<br>Class Score</h2>
                     </div>
-                `;
-                return box;
+                    <div style="width: 150px; height: 180px;">
+                        <canvas id="highestScoreChart" class="small-chart"></canvas>
+                    </div>
+                </div>
+            `; // Title and canvas for the chart
+            console.log("Attempting to use Exam ID:", selectedExamId); // Debug log
+
+            if (selectedExamId) {
+                db.collection("Graded").doc(selectedExamId).get().then((doc) => {
+                    if (doc.exists) {
+                        let students = doc.data().students;
+                        let highestScore = 0;
+                        students.forEach(student => {
+                            if (student.final_grade > highestScore) {
+                                highestScore = student.final_grade;
+                            }
+                        });
+                        let highestChartPercentage = highestScore.toFixed(2); // Convert highest score to a percentage for the pie chart
+                        drawHighestScoreChart(highestChartPercentage);
+                    } else {
+                        box.innerHTML += '<div>No data found</div>';
+                    }
+                }).catch((error) => {
+                    console.error("Error getting documents:", error);
+                    box.innerHTML += '<div>Error retrieving data</div>';
+                });
+            } else {
+                box.innerHTML += '<div>Please select a valid Exam ID.</div>';
             }
+            return box;
+        }
+
+        function drawHighestScoreChart(highestChartPercentage) {
+            var ctx = document.getElementById('highestScoreChart').getContext('2d');
+            var remainingPercentage = 100 - highestChartPercentage;
+
+            var chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [highestChartPercentage, remainingPercentage],
+                        backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(255, 255, 255, 0)'],
+                        borderColor: ['rgba(255, 99, 132, 1)', 'rgba(255, 255, 255, 0)'],
+                        borderWidth: 1
+                    }],
+                    labels: ['Highest Score', '']
+                },
+                options: {
+                    responsive: true,
+                    layout: {
+                        padding: {
+                            right: 20 // Add 20px padding to the right
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function(context) {
+                                    var label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.raw !== null) {
+                                        label += context.raw + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '50%'
+                },
+                plugins: [{
+                    afterDraw: function(chart) {
+                        if (chart.data.datasets.length === 0) {
+                            return;
+                        }
+                        var ctx = chart.ctx;
+                        var dataset = chart.data.datasets[0];
+                        if (dataset.data.length === 0) {
+                            return;
+                        }
+                        var value = dataset.data[0];
+                        var cx = chart.chartArea.left + chart.chartArea.width / 2;
+                        var cy = chart.chartArea.top + chart.chartArea.height / 2;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.font = 'bold 20px Arial'; // Make the font bold
+                        ctx.fillStyle = 'white'; // Change the color to white
+                        ctx.fillText(value, cx, cy);
+                    }
+                }]
+            });
+        }
 
             function createBox2_2() {
                 let box = document.createElement('div');
@@ -822,16 +917,139 @@
                 });
             }
 
-            function createBox3_2() {
+                function createBox3_2() {
                 let box = document.createElement('div');
                 box.className = 'student-box';
+                box.style.height = 'auto'; // Adjust based on content
                 box.innerHTML = `
-                    <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                        Dummy data for box 3_2
+                    <h2 style="text-align: center; margin-bottom: 10px;">Question Average Scores</h2>
+                    <div style="width: 100%; height: 300px; position: relative;">
+                        <canvas id="questionAverageChart" style="width: 100%; height: 100%;"></canvas>
                     </div>
                 `;
+
+                if (selectedExamId) {
+                    fetchAndDisplayQuestionAverages();
+                } else {
+                    box.innerHTML += '<div>Please select a valid Exam ID.</div>';
+                }
+
                 return box;
             }
+
+            function fetchAndDisplayQuestionAverages() {
+                const db = firebase.firestore();
+                db.collection("Graded").doc("FirstMidTerm").get()
+                    .then(doc => {
+                        if (!doc.exists) {
+                            console.log("No matching document.");
+                            return;
+                        }
+
+                        const data = doc.data();
+                        console.log("Document data:", data); // Log document data
+
+                        const questionScores = {};
+                        const questionCounts = {};
+
+                        // Check if students field exists and is an array
+                        const students = data.students;
+                        if (students && Array.isArray(students)) {
+                            students.forEach(student => {
+                                const grades = student.grades;
+                                if (grades && Array.isArray(grades)) {
+                                    grades.forEach(grade => {
+                                        console.log("Grade data:", grade); // Log each grade
+                                        if (grade.question_number && typeof grade.total_score === 'number') {
+                                            if (questionScores[grade.question_number]) {
+                                                questionScores[grade.question_number] += grade.total_score;
+                                                questionCounts[grade.question_number]++;
+                                            } else {
+                                                questionScores[grade.question_number] = grade.total_score;
+                                                questionCounts[grade.question_number] = 1;
+                                            }
+                                        } else {
+                                            console.log("Invalid data for grade:", grade);
+                                        }
+                                    });
+                                } else {
+                                    console.log("Grades data missing or not an array for student:", student);
+                                }
+                            });
+                        } else {
+                            console.log("Students data missing or not an array in document ID:", doc.id);
+                        }
+
+                        console.log("Question scores:", questionScores); // Log question scores
+                        console.log("Question counts:", questionCounts); // Log question counts
+
+                        const averageScores = [];
+                        for (let question in questionScores) {
+                            averageScores.push({
+                                question: question,
+                                averageScore: questionScores[question] / questionCounts[question]
+                            });
+                        }
+
+                        // Sort the averageScores array in the natural order of question numbers
+                        averageScores.sort((a, b) => {
+                            const questionA = parseInt(a.question.replace("Q", ""));
+                            const questionB = parseInt(b.question.replace("Q", ""));
+                            return questionA - questionB;
+                        });
+
+                        console.log("Average scores:", averageScores); // Log average scores
+                        drawQuestionsAverageChart(averageScores);
+                    })
+                    .catch(error => {
+                        console.error("Error fetching data:", error);
+                        document.getElementById('questionAverageChart').parentNode.innerHTML += '<div>Error retrieving data.</div>';
+                    });
+            }
+
+        function drawQuestionsAverageChart(averageScores) {
+            const ctx = document.getElementById('questionAverageChart').getContext('2d');
+            if (window.questionAverageChart instanceof Chart) {
+                window.questionAverageChart.destroy();
+            }
+
+            window.questionAverageChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: averageScores.map(data => data.question),
+                    datasets: [{
+                        label: 'Average Score',
+                        data: averageScores.map(data => data.averageScore),
+                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: 'white' // Set y-axis labels to white
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'white' // Set x-axis labels to white
+                            }
+                        }
+                    },
+                    legend: {
+                        labels: {
+                            color: 'white' // Set legend labels to white
+                        },
+                        position: 'top'
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false // Important to fit within the container
+                }
+            });
+        }
 
             async function populateColumns(examContainer) {
                 const columnsConfig = [2, 3, 2]; // Number of boxes per column
