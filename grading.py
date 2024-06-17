@@ -96,10 +96,10 @@ def grade_exam(exam_id):
     students_json = load_firebase_student("Student", exam_id)
 
     # print(f"Grading exam {exam_id}")
-    print(f"content of selected exam_id: {students_json}")
+    print(f"content of selected exam_id: {students_json["students"]}")
 
 
-    for student_dict in students_json[0]["students"]:
+    for student_dict in students_json["students"]:
         for student_id, answers in student_dict.items():
             # Print student['student_id'] and student_id
             # print(f"Processing student {student_id}")
