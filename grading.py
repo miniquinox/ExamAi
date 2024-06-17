@@ -85,13 +85,13 @@ def grade_exam(exam_id):
 
     students_json = load_firebase("Student")
 
-    # print(f"Grading exam {exam_id}")
-    # print(f"content: {students_json}")
+    print(f"Grading exam {exam_id}")
+    print(f"content: {students_json}")
 
-    for student_dict in students_json[exam_id]["students"]:
+    for student_dict in students_json[0]["students"]:
         for student_id, answers in student_dict.items():
             # Print student['student_id'] and student_id
-            # print(f"Processing student {student_id}")
+            print(f"Processing student {student_id}")
             
             # Check if student is already graded
             doc_ref = db.collection('Graded').document(exam_id)
