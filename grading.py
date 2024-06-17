@@ -95,10 +95,6 @@ def grade_exam(exam_id):
 
     students_json = load_firebase_student("Student", exam_id)
 
-    # print(f"Grading exam {exam_id}")
-    print(f"content of selected exam_id: {students_json["students"]}")
-
-
     for student_dict in students_json["students"]:
         for student_id, answers in student_dict.items():
             # Print student['student_id'] and student_id
@@ -145,8 +141,16 @@ def grade_exam(exam_id):
                             f"=============Rubrics: {student_question['rubrics']}\n\n"
                             f"=============Answer: {student_answer}\n\n"
                         )
-                        graded_response = ask_gpt(prompt)
-                        result_dict = json.loads(graded_response)
+                        success = False
+                        while not success:
+                            try:
+                                graded_response = ask_gpt(prompt)
+                                result_dict = json.loads(graded_response)
+                                success = True  # Parsing succeeded, exit the loop
+                            except json.JSONDecodeError:
+                                print("Error parsing JSON, trying again...")
+                                # The loop will automatically retry
+                                
                         result_dict["answer"] = student_answer  # Add the student's answer
                         total_score += result_dict["total_score"]
                         result_dict["question_number"] = question_number
