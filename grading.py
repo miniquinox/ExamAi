@@ -38,9 +38,9 @@ def ask_gpt(question):
     }
     data = {
         # "model": "gpt-3.5-turbo",
-        "model": "gpt-4-turbo",
+        # "model": "gpt-4-turbo",
         # "model": "gpt-4",
-        # "model": "gpt-4o",
+        "model": "gpt-4o",
         "messages": [
             {
                 "role": "system",
