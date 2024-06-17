@@ -37,8 +37,8 @@ def ask_gpt(question):
         "Authorization": f"Bearer {keys}"
     }
     data = {
-        "model": "gpt-3.5-turbo",
-        # "model": "gpt-4-turbo",
+        # "model": "gpt-3.5-turbo",
+        "model": "gpt-4-turbo",
         # "model": "gpt-4",
         # "model": "gpt-4o",
         "messages": [
