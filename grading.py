@@ -141,6 +141,7 @@ def grade_exam(exam_id):
                         result_dict["question_number"] = question_number
                         student_result["grades"].append(result_dict)
                         print(f"Graded question {question_number} for student {student_id}")
+                        print(f'Graded response: {student_result["grades"]}')
             student_result["final_grade"] = total_score
             exam_results["students"].append(student_result)
 
@@ -151,8 +152,6 @@ def grade_exam(exam_id):
     # Update the document in Firestore
     doc_ref = db.collection('Graded').document(exam_id)
     doc_ref.set(exam_results, merge=True)
-
-    print("Database name: ", db.collection('Graded').document(exam_id))
 
 exam_id = os.getenv('EXAM_ID')
 student_id = os.getenv('STUDENT_ID')
