@@ -61,7 +61,10 @@ def ask_gpt(question):
 # Function to load data from Firestore
 def load_firebase(database):
     ref = db.collection(database)
-    return [doc.to_dict() for doc in ref.get()]
+    docs = ref.get()
+    doc_names = [doc.id for doc in docs]  # Get document names (IDs)
+    print("Document names in the collection:", doc_names)
+    return [doc.to_dict() for doc in docs]
 
 def grade_exam(exam_id):
     # Process each student's data
@@ -85,28 +88,13 @@ def grade_exam(exam_id):
 
     students_json = load_firebase("Student")
 
-    print(f"Grading exam {exam_id}")
-
-
-    found = False
-    for student_entry in students_json:
-        if 'students' in student_entry:
-            for student_info in student_entry['students']:
-                if exam_id in student_info:
-                    print(f"Found {exam_id} in:", student_info)
-                    # print(f"Content: {student_info[exam_id]}")
-                    found = True
-                    break  # Break the inner loop if you only need the first match
-        if found:
-            break  # Break the outer loop if the examId was found
-
-    if not found:
-        print(f"{exam_id} not found.")
+    # print(f"Grading exam {exam_id}")
+    # print(f"content: {students_json}")
 
     for student_dict in students_json[0]["students"]:
         for student_id, answers in student_dict.items():
             # Print student['student_id'] and student_id
-            print(f"Processing student {student_id}")
+            # print(f"Processing student {student_id}")
             
             # Check if student is already graded
             doc_ref = db.collection('Graded').document(exam_id)
@@ -156,13 +144,12 @@ def grade_exam(exam_id):
                         result_dict["question_number"] = question_number
                         student_result["grades"].append(result_dict)
                         print(f"Graded question {question_number} for student {student_id}")
-                        print(f'Graded response: {student_result["grades"]}')
             student_result["final_grade"] = total_score
             exam_results["students"].append(student_result)
 
     # Output the final JSON
     exam_results_json = json.dumps(exam_results, indent=4)
-    print(exam_results_json)
+    # print(exam_results_json)
 
     # Update the document in Firestore
     doc_ref = db.collection('Graded').document(exam_id)
