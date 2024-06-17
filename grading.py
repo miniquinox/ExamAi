@@ -146,11 +146,13 @@ def grade_exam(exam_id):
 
     # Output the final JSON
     exam_results_json = json.dumps(exam_results, indent=4)
-    # print(exam_results_json)
+    print(exam_results_json)
 
     # Update the document in Firestore
     doc_ref = db.collection('Graded').document(exam_id)
     doc_ref.set(exam_results, merge=True)
+
+    print("Database name: ", db.collection('Graded').document(exam_id))
 
 exam_id = os.getenv('EXAM_ID')
 student_id = os.getenv('STUDENT_ID')
