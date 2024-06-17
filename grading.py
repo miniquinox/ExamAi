@@ -93,7 +93,7 @@ def grade_exam(exam_id):
         print(f"No exam found with id {exam_id}")
         return
 
-    students_json = load_firebase_student("Student")
+    students_json = load_firebase_student("Student", exam_id)
 
     # print(f"Grading exam {exam_id}")
     print(f"content of selected exam_id: {students_json}")
