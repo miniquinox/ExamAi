@@ -37,7 +37,7 @@ def ask_gpt(question):
         "Authorization": f"Bearer {keys}"
     }
     data = {
-        # "model": "gpt-3.5-turbo",
+        "model": "gpt-3.5-turbo",
         # "model": "gpt-4-turbo",
         # "model": "gpt-4",
         "model": "gpt-4o",
@@ -61,11 +61,18 @@ def ask_gpt(question):
 # Function to load data from Firestore
 def load_firebase(database):
     ref = db.collection(database)
-    docs = ref.get()
-    doc_names = [doc.id for doc in docs]  # Get document names (IDs)
-    print("Document names in the collection:", doc_names)
-    return [doc.to_dict() for doc in docs]
+    return [doc.to_dict() for doc in ref.get()]
 
+def load_firebase_student(database, exam_id):
+    ref = db.collection(database)
+    doc = ref.document(exam_id).get()
+    if doc.exists:
+        print(f"Document with ID {exam_id} exists in the collection.")
+        return doc.to_dict()
+    else:
+        print(f"Document with ID {exam_id} does not exist in the collection.")
+        return None
+    
 def grade_exam(exam_id):
     # Process each student's data
     exam_results = {
@@ -86,10 +93,11 @@ def grade_exam(exam_id):
         print(f"No exam found with id {exam_id}")
         return
 
-    students_json = load_firebase("Student")
+    students_json = load_firebase_student("Student")
 
     # print(f"Grading exam {exam_id}")
-    # print(f"content: {students_json}")
+    print(f"content of selected exam_id: {students_json}")
+
 
     for student_dict in students_json[0]["students"]:
         for student_id, answers in student_dict.items():
