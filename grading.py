@@ -86,8 +86,22 @@ def grade_exam(exam_id):
     students_json = load_firebase("Student")
 
     print(f"Grading exam {exam_id}")
-    # print(f"content: {students_json}")
-    print(f"exams: {students_json[0]}")
+
+
+    found = False
+    for student_entry in students_json:
+        if 'students' in student_entry:
+            for student_info in student_entry['students']:
+                if exam_id in student_info:
+                    print(f"Found {exam_id} in:", student_info)
+                    # print(f"Content: {student_info[exam_id]}")
+                    found = True
+                    break  # Break the inner loop if you only need the first match
+        if found:
+            break  # Break the outer loop if the examId was found
+
+    if not found:
+        print(f"{exam_id} not found.")
 
     for student_dict in students_json[0]["students"]:
         for student_id, answers in student_dict.items():
